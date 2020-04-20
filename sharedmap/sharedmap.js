@@ -1,6 +1,11 @@
 // insert some code for shared map.
 // Library to be used, Pixie.jsP
 // following tutorial: https://www.youtube.com/watch?v=GuY_PROTr0I
+//import * as PIXI from 'pixi.js';
+//var PIXI = require('pixi.js')
+
+// var PIXI = require('pixi/pixi.min.js');
+
 PIXI.utils.sayHello();
 const canvas = document.getElementById('mycanvas');
 const app = new PIXI.Application({view: canvas, width: window.innerWidth, height: window.innerHeight});
