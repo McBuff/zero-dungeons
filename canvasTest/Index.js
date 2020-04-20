@@ -1,23 +1,26 @@
-// Generate 
-let objCanvas = {
-  source:document.getElementById("myCanvas1"),
-  context: objCanvas.getContext("2d"),
-};
 
-// let Vancwidth = canvas.width;
-// let height = canvas.height;
-// let i;
+function drawGrid(){
+  window.alert("im in");
+  let canv = document.getElementById("myCanvas1");
+  let ctx = canv.getContext("2d");
+  
+  let cWidth = canv.width;
+  let cHeight = canv.height;
+  let i;
+  
+  for (i = 0; i < cWidth; i+=20) {
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i, cHeight);
+    ctx.stroke();
+  }
 
-for (i = 0; i < cars.length; i++) {
-  text += cars[i] + "<br>";
+  for (i = 0; i < cHeight; i+=20) {
+    ctx.moveTo(0, i);
+    ctx.lineTo(cWidth, i);
+    ctx.stroke();
+  }
 
 }
-ctx.moveTo(0, 0);
-ctx.lineTo(200, 100);
-ctx.stroke();
-
-
-
 
 
 //simple rando nr gen
