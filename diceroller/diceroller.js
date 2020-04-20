@@ -1,13 +1,17 @@
-//import 'jquery'
+function rolldice(){
+    console.log("rolled dice");
 
-var title = "Constructing HTML Elements";
+    var container = $("<dicelog>");
+    
+    var owner = $("<text>");
+    owner.value = "Deus";
+    
+    container.append(owner);
+    var elem = document.getElementById('log');
+    elem.append(elem);
 
-var container = $("<div>");
-container.addClass("tutorial");
 
-var h1 = $("<h1>");
-h1.text(title);
-h1.addClass("tutorial-heading"); 
-container.append(h1);
 
-$("body").append(container);
+
+    
+}

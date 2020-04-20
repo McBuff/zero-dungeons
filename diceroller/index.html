@@ -6,12 +6,20 @@
         <title>Dice Roller</title>
         <link rel="stylesheet" href="style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="diceroller.js"></script>
     </head>
 
    <body>
        <div>
            <input type="text">
-           <button id="btnRoll">Roll Dice</button>
+           <button id="btnRoll" onclick="rolldice()" >Roll Dice</button>
+        </div>
+        <div id="log">
+            <text id="user">Deus</text> <br/>
+            <b> <text id="title">Roll:</text> 
+            <text id="value">25</text> </b>
+            <br/>            
+            <text id="details">2d10</text> <br/>
         </div>
    </body>
 
