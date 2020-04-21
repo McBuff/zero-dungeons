@@ -1,5 +1,12 @@
 function rolldice(){
-    console.log("rolled dice");
+    console.log("sano is een zandneger");
+
+    // 1. Roll Dice (defined by user?)
+    // 2. Create html elements to display stuff
+    // 3. Fill html elments
+        // user, roll, details
+    
+    
 
     var container = $("<dicelog>");
     
@@ -8,10 +15,11 @@ function rolldice(){
     
     container.append(owner);
     var elem = document.getElementById('log');
-    elem.append(elem);
-
-
-
-
+    // elem.append(elem);
     
+    console.log("rolled dice, result = X");
+}
+
+function clearlog(){
+    console.log("Clear log called");
 }
