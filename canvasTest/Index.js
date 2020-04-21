@@ -1,6 +1,5 @@
 
 function drawGrid(){
-  window.alert("im in");
   let canv = document.getElementById("myCanvas1");
   let ctx = canv.getContext("2d");
   
