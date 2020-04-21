@@ -10,10 +10,42 @@
     </head>
 
    <body>
-       <div>
-           <input type="text">
-           <button id="btnRoll" onclick="rolldice()" >Roll Dice</button>
-           <button id="btnClear" onclick="clearlog()" >Roll Dice</button>
+       <div id="dicepool" class="dicepool">
+            <div class="dicebuttoncontainer">                
+                <button class="dicebutton" id="dicepool_d4" onclick="add_d4()">4</button>               
+                <!-- <button class="dicebutton" id="dicepool_d4" style="background-image: url(img/d6.png);" onclick="add_d4()"></button>                -->
+            </div>
+
+            <div class="dicebuttoncontainer" >                
+                <!-- <button class="dicebutton" id="dicepool_d8" style="background-image: url(img/d6.png);" onclick="add_d6()"></button>                -->
+                <button class="dicebutton" id="dicepool_d6" onclick="add_d6()">6</button>               
+            </div>
+
+            <div class="dicebuttoncontainer" >                
+                <!-- <button class="dicebutton" id="dicepool_d8" style="background-image: url(img/d6.png);" onclick="add_d6()"></button>                -->
+                <button class="dicebutton" id="dicepool_d8" onclick="add_d8()">8</button>               
+            </div>
+            
+            <div class="dicebuttoncontainer" >                
+                <!-- <button class="dicebutton" id="dicepool_d8" style="background-image: url(img/d6.png);" onclick="add_d6()"></button>                -->
+                <button class="dicebutton" id="dicepool_d10" onclick="add_d10()">10</button>               
+            </div>
+            
+            <div class="dicebuttoncontainer" >                
+                <!-- <button class="dicebutton" id="dicepool_d8" style="background-image: url(img/d6.png);" onclick="add_d6()"></button>                -->
+                <button class="dicebutton" id="dicepool_d12" onclick="add_d12()">12</button>               
+            </div>
+
+            <div class="dicebuttoncontainer" >                
+                <!-- <button class="dicebutton" id="dicepool_d8" style="background-image: url(img/d6.png);" onclick="add_d6()"></button>                -->
+                <button class="dicebutton" id="dicepool_d100" onclick="add_d100()">100</button>               
+            </div>
+
+       </div>
+       <div id="userInterface", class="grid-container">
+           <!-- <input type="text"/> -->
+           <button id="btnRoll" onclick="handleDiceRoll()" class="column">Roll Dice</button>
+           <button id="btnClear" onclick="clearlog()" class="column">Clear</button>
         </div>
         <div id="log">
             <text id="user">Deus</text> <br/>

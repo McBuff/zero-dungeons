@@ -1,7 +1,47 @@
 * {
     font-family: Helvetica, Arial, sans-serif;
-    text-align: center;
+    /* text-align: center; */
   }
+
+
+  .grid-container {
+    display: inline-grid;
+    grid-row-gap: 10px;
+  }
+
+.dicepool {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto;
+  grid-column-gap: 1mm;
+  padding: 0px;
+  width: 15cm;
+  
+}
+
+  .dicebuttoncontainer{
+    position: relative;
+    width: auto;
+  }
+  /* Make the image responsive */
+
+  .dicebutton{
+    position: relative;
+    /* width: 1.8cm;
+    height: 1.8cm; */
+
+    width: 2em;
+    height: 2em;
+    background-size: 100%;
+    
+    font-size: 1cm;
+    font-weight: bold;
+    text-align: center;
+    
+    padding: 0px;
+    border-radius: 8px;
+  }
+
+
   button {
     background-color: rgb(82, 186, 179);
     border-radius: 6px;
@@ -12,13 +52,3 @@
     width: 200px;
     cursor: pointer;
   }
-  #placeholder {
-    height: 100px;
-    width: 100px;
-    padding: 50px;
-    margin: 50px auto;
-    border: 1px solid gray;
-    border-radius: 10px;  
-    font-size:80px;
-  }
-  

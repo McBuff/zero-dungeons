@@ -1,12 +1,26 @@
-function rolldice(){
-    console.log("sano is een zandneger");
+function handleDiceRoll(){
+    
+    // user has clicked button    
+    
+    // Retreive user selected dice
+    // TODO:
+    
+    // Get user chosen dice
 
-    // 1. Roll Dice (defined by user?)
-    // 2. Create html elements to display stuff
-    // 3. Fill html elments
-        // user, roll, details
+    // S/C: Roll dice
     
+    // C: Message server that a dice has been rolled, join dice data
     
+    // S: send dice output to users
+
+    // S: add dice output to log
+
+    // C: show dice ouput?
+
+
+
+    
+    rollDice("this should be a die", "so should this");
 
     var container = $("<dicelog>");
     
@@ -20,6 +34,20 @@ function rolldice(){
     console.log("rolled dice, result = X");
 }
 
+function sendRollToServer(dicerollData){
+
+}
+function rollDice(){
+    for (i = 0; i < arguments.length; i++)
+    {
+        console.log("Rolling dice '" + arguments[i]+ "'");
+    }
+}
+
 function clearlog(){
     console.log("Clear log called");
+}
+
+function writeServerLog(line){
+    console.log("server log");
 }
