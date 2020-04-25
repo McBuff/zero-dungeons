@@ -1,0 +1,90 @@
+<div id="container" style="font-family: Arial, Helvetica, sans-serif;">
+    
+    <div id="divSign">
+        <h1>Log in</h1>
+        Username: <input id="divSign-username" type="text"></input><br>
+        Password:  <input id="divSign-password" type="password"></input> <br>
+        <button id="divSign-signin">Sign In</button>
+    </div>
+
+    <div id="divClient" style="display:none;">
+        <h3>Players</h3>
+        <div id="divClient-playerlist"></div>
+        <h3>Dice Roller</h3>
+        Dice: <input id="divClient-dicetext" type="text"></input>
+        <button id="divClient-Roll">Roll!</button>
+        <div id="divClient-RollResults">
+
+        </div>
+        <!-- <button id="divClient-Roll">Roll!</button> -->
+    </div>
+</div>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+    var socket = io();
+
+    // init login fields
+    var divSign = document.getElementById('divSign');
+    var divSignUsername = document.getElementById('divSign-username');
+    divSignUsername.value = "";
+    var divSignPassword = document.getElementById('divSign-password');
+    var divSignSignIn = document.getElementById('divSign-signin');
+
+    var divClient = document.getElementById('divClient');
+    var divClientRoll = document.getElementById('divClient-Roll');
+    var divClientPlayerlist = document.getElementById('divClient-playerlist');
+    var divClientRollResults = document.getElementById('divClient-RollResults');
+
+    divSignSignIn.onclick = function(){
+        if(divSignUsername.value.length > 0){
+            console.log("sign in button pressed");
+            socket.emit('clientSignIn',{
+                username:divSignUsername.value,
+                password:divSignPassword.value
+            });
+        }
+    }
+
+    socket.on('clientSignInResponse', function(res){
+            if(res.succes){
+                console.log('Login succes!');
+                divSign.style="display:None;";
+                divClient.style="display:inline-block;";
+                
+            }
+            else{
+                alert('Acces denied!');
+            } 
+    });
+    //-----------
+
+    divClientRoll.onclick = function(){
+        socket.emit('rollDice', {dice:[20,20,5]});
+    }
+
+    // update player list field
+    socket.on('setPlayerList', function(data){
+        divClientPlayerlist.innerHTML = '';
+
+        for(var i in data){
+            var username = data[i].username;
+            var color = data[i].color;
+            divClientPlayerlist.innerHTML += '<div style="color:' +color+  ';">' + username + '</div>';
+        }
+    });
+
+    socket.on('addDiceRollResult', function(data){
+        // add dice result on top of tray
+        // currently server decides HTML coding
+        divClientRollResults.innerHTML = data + divClientRollResults.innerHTML;
+    });
+
+    socket.on('transferDiceLog', function(data){
+
+        console.log('Receiving dicelog' + data.log);
+        divClientRollResults.innerHTML = data.log;
+    });
+
+    
+
+</script>
