@@ -9,25 +9,39 @@
     
     // connect to server socket
     var socket = io();
-
-    // used as a random identifier for clients that are connected
-    var random = Math.random();
-
-    // send a message with 'data' containing variable 'reason'
-    // this is caught by the server's socket.on('', function(data)) listener.
-    var happy = function(){
-        socket.emit('happy', {
-            reason:'socket is working' + random
-                });
-        console.log("happy called")
-    };
-
     
-    socket.on('serverMsg', function(data){
-        console.log(data.msg);
+    socket.on('newPositions', function(data){
+        ctx.clearRect(0,0,500,500);
+
+        for(var i = 0; i < data.length; i++){
+            let d = data[i];
+            ctx.fillText('P' +d.number, d.x, d.y);
+        }
+        
     });
+
+    document.onkeydown = function(event){
+        if(event.keyCode === 68)    //d
+            socket.emit('keyPress',{inputId:'right',state:true});
+        else if(event.keyCode === 83)   //s
+            socket.emit('keyPress',{inputId:'down',state:true});
+        else if(event.keyCode === 65|| event.keyCode === 81) //a / q
+            socket.emit('keyPress',{inputId:'left',state:true});
+        else if(event.keyCode === 87 || event.keyCode === 90) // w || z
+            socket.emit('keyPress',{inputId:'up',state:true});
+           
+    }
+    document.onkeyup = function(event){
+        if(event.keyCode === 68)    //d
+            socket.emit('keyPress',{inputId:'right',state:false});
+        else if(event.keyCode === 83)   //s
+            socket.emit('keyPress',{inputId:'down',state:false});
+        else if(event.keyCode === 65|| event.keyCode === 81) //a / q
+            socket.emit('keyPress',{inputId:'left',state:false});
+        else if(event.keyCode === 87 || event.keyCode === 90) // w || z
+            socket.emit('keyPress',{inputId:'up',state:false});
+    }
 
     // receives a message from the server
 </script>
 
-<button onclick="happy()">Happy</button>
