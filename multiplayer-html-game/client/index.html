@@ -1,16 +1,50 @@
 
-<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
+<div id="signDiv">
+    Username: <input id="signDiv-username" type="text"></input> <br>
+    Password: <input id="signDiv-password" type="password"></input> <br>
+    <button id="signDiv-signIn">Sign in</button>
+    <button id="signDiv-signUp">Sign up</button>
 
-<div id="chat-text" style="width:500px; height:100px;overflow-y: scroll;">
-    <div>Hello!</div>
 </div>
-<form id="chat-form">
-    <input id="chat-input" type="text" style="width: 500px;"></input>
-</form>
+
+<div id="gameDiv" style="display:none;">
+    <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
+    <div id="chat-text" style="width:500px; height:100px;overflow-y: scroll;">
+        <div>Hello!</div>
+    </div>
+    <form id="chat-form">
+        <input id="chat-input" type="text" style="width: 500px;"></input>
+    </form>
+</div>
 
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 
 <script>
+    // handle login
+    // connect to server socket
+    var socket = io();
+
+    var signDiv = document.getElementById('signDiv');
+    var signDivUsername = document.getElementById('signDiv-username');
+    var signDivPassword = document.getElementById('signDiv-password');
+    var signDivSignIn = document.getElementById('signDiv-signIn');
+    var signDivSignUp = document.getElementById('signDiv-signUp');
+    
+    var gameDiv = document.getElementById('gameDiv');
+
+    signDivSignIn.onclick = function(){
+    socket.emit('signIn', {username:signDivUsername.value,password:signDivPassword.value});
+    };
+
+    socket.on('signInResponse', function(data){
+        if(data.succes){
+            signDiv.style.display = "None";
+            gameDiv.style.display = "inline-block";
+        }
+        else{
+            alert('Sign in unsuccesful!');
+        }
+    });
 
     // chat area
     var chatText = document.getElementById('chat-text');
@@ -23,8 +57,7 @@
     var ctx = document.getElementById('ctx').getContext("2d");
     ctx.font = '30px Arial';
     
-    // connect to server socket
-    var socket = io();
+    
     
     socket.on('newPositions', function(data){
         ctx.clearRect(0,0,500,500);

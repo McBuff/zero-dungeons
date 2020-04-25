@@ -27,6 +27,17 @@ console.log('server started');
 //#endregion
 
 DEBUG = true;
+USERS = {
+    //username:password
+    "bob":"qsd",
+    "bob2":"qsd2",
+    "bob3":"qsd3",
+}
+
+
+var isValidPassword = function(data){
+    return USERS[data.username] === data.password;
+}
 
 var SOCKET_LIST = {};
 //var PLAYER_LIST = {};
@@ -223,7 +234,18 @@ io.sockets.on('connection', function(socket){
     console.log('Player connected: ' + socket.id);
 
     // Create player object that will be controlled through socket
-    Player.onConnect(socket);    
+    
+    socket.on('signIn', function(data){
+        if(isValidPassword(data))
+        {
+            Player.onConnect(socket); 
+            socket.emit('signInResponse', {succes:true});
+        }
+        else{
+            socket.emit('signInResponse', {succes:false});
+        }
+    });
+
 
     // On Disconnect, delete  it's socket & let player destroy itself
     socket.on('disconnect', function(){
