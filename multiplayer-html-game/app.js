@@ -26,6 +26,8 @@ console.log('server started');
 
 //#endregion
 
+DEBUG = true;
+
 var SOCKET_LIST = {};
 //var PLAYER_LIST = {};
 
@@ -46,7 +48,9 @@ var Entity = function(id){
         self.y += self.spdY;
 
     }
-
+    self.getDistance = function(pt){
+        return Math.sqrt(Math.pow(self.x-pt.x,2) + Math.pow(self.y-pt.y,2));
+    }
     return self;
 };
 
@@ -58,6 +62,8 @@ var Player = function(id){
     self.pressingLeft=false;
     self.pressingUp=false;
     self.pressingDown=false;
+    self.pressingAttack=false;
+    self.mouseAngle=0;
     self.maxSpd=10;
 
     var super_update = self.update;
@@ -66,6 +72,17 @@ var Player = function(id){
         self.updateSpd();
         super_update();
 
+        if(self.pressingAttack){
+            self.shootBullet(self.mouseAngle);
+        }
+
+    };
+
+    self.shootBullet = function(angle){
+        console.log("created new bullet. Bulletcount: " + Object.keys(Bullet.list).length);
+        var b = Bullet(self.id, angle);
+        b.x = self.x;
+        b.y = self.y;
     };
 
     
@@ -85,6 +102,9 @@ var Player = function(id){
             self.spdY = 0;
 
     }
+
+
+
     Player.list[id] = self;
     return self;
 }
@@ -101,6 +121,11 @@ Player.onConnect = function(socket){
             player.pressingUp = data.state;
         else if(data.inputId === 'down')
             player.pressingDown = data.state;
+
+        if(data.inputId === 'attack')
+            player.pressingAttack = data.state;
+        if(data.inputId === 'mouseAngle')
+            player.mouseAngle = data.state;
     });
 
 
@@ -131,9 +156,10 @@ Player.update = function(){
     return pack;
 }
 
-var Bullet = function(angle){
+var Bullet = function(parent, angle){
     var self = Entity();
     self.id = Math.random();
+    self.parent = parent;
     self.spdX = Math.cos(angle/180*Math.PI) * 10;
     self.spdY = Math.sin(angle/180*Math.PI) * 10;
 
@@ -145,6 +171,17 @@ var Bullet = function(angle){
         if(self.timer++ > 100)
             self.toRemove = true;
         super_update();
+
+        for(var i in Player.list){
+            var p = Player.list[i];
+            
+            if(self.getDistance(p) < 32 && p.id !== self.parent)// this works because player has an x and y var;
+            {
+                //handle collision. ex: hp--;
+                self.toRemove = true;
+            }
+            
+        }
     }
 
     Bullet.list[self.id] = self;
@@ -158,16 +195,14 @@ Bullet.list = {};
 // returns pack data to send over socket.io
 Bullet.update = function(){
 
-    if(Math.random() < 0.1){
-        console.log("created new bullet. Bulletcount: " + Object.keys(Bullet.list).length);
-        Bullet(Math.random()*360);
-    }
-
     var pack = [];
     for( var i in Bullet.list)
     {
         var bullet = Bullet.list[i];
         bullet.update();
+
+        if(bullet.toRemove) 
+            delete Bullet.list[i];
         pack.push({
             x:bullet.x,
             y:bullet.y,
@@ -195,6 +230,24 @@ io.sockets.on('connection', function(socket){
         delete SOCKET_LIST[socket.id];
         //delete PLAYER_LIST[socket.id];
         Player.onDisconnect(socket);
+        
+    });
+
+    socket.on('sendMsgToServer',function(data){
+        var playerName = ("" + socket.id).slice(2,7);
+        for( var i in SOCKET_LIST){
+            SOCKET_LIST[i].emit('addToChat', playerName + ': ' + data);
+        }
+    });
+
+    socket.on('evalServer', function(data){
+        if(DEBUG){
+            var res = eval(data);
+            
+        }
+        else res = "Not allowed!"
+
+        socket.emit('evalAnswer',res);
         
     });
 
