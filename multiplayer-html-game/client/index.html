@@ -1,0 +1,33 @@
+
+<canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
+
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+    // get canvas
+    var ctx = document.getElementById('ctx').getContext("2d");
+    ctx.font = '30px Arial';
+    
+    // connect to server socket
+    var socket = io();
+
+    // used as a random identifier for clients that are connected
+    var random = Math.random();
+
+    // send a message with 'data' containing variable 'reason'
+    // this is caught by the server's socket.on('', function(data)) listener.
+    var happy = function(){
+        socket.emit('happy', {
+            reason:'socket is working' + random
+                });
+        console.log("happy called")
+    };
+
+    
+    socket.on('serverMsg', function(data){
+        console.log(data.msg);
+    });
+
+    // receives a message from the server
+</script>
+
+<button onclick="happy()">Happy</button>
