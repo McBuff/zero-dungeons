@@ -34,7 +34,7 @@ app.get('/audio/diceroll_4_2.mp3',function(req, res) {
 
 app.use('/client',express.static(__dirname + '/client'));
  
-serv.listen(2000);
+serv.listen(8080);
 console.log("Server started.");
 
 var io = require('socket.io')(serv,{});
