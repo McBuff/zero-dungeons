@@ -1,3 +1,5 @@
+PORT= process.env.PORT || 2020;
+
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
@@ -34,7 +36,7 @@ app.get('/audio/diceroll_4_2.mp3',function(req, res) {
 
 app.use('/client',express.static(__dirname + '/client'));
  
-serv.listen(8080);
+serv.listen(PORT);
 console.log("Server started.");
 
 var io = require('socket.io')(serv,{});
@@ -48,7 +50,7 @@ USERS = {
     'Dimur':'dnd',
 }
 
-USERCOLORS = ['Brown', 'CornflowerBlue', 'Chocolate', 'DarkGreen', 'Purple'];
+USERCOLORS = ['Brown', 'CornflowerBlue', 'Chocolate', 'DarkGreen', 'Indigo'];
 
 DEBUGPWD = 'dnd';
 LOGINSETTINGS = {mode:'FREEROOM', password:'DND'};
@@ -271,5 +273,21 @@ io.sockets.on('connection', function(socket){
     });
         
     
+    socket.on('consoleCommand', function(cmd){
+        console.log('========================');
+        console.log('Received Console Command');
+        console.log('========================');
+        if(cmd === 'cls'){
+            console.log('clearing dicelog');
+            DICELOG = ''; 
+            
+            for(var i in SOCKETS){
+                var psocket = SOCKETS[i];
+                psocket.emit('transferDiceLog',{log:DICELOG.toString()} );
+            }
+
+            return;
+        }
+    })
 
 });

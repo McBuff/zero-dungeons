@@ -9,16 +9,20 @@
 
     <div id="divClient" style="display:none;">
         <h3>Options</h3>
-        Play sounds <input id="divOptions-playsounds" type="checkbox"></input>
+        <input id="divOptions-playsounds" type="checkbox"></input> Play sounds 
+        <input id="divOptions-clearAfterRoll" type="checkbox"></input>Clear after Roll
         <h3>Players</h3>
         <div id="divClient-playerlist"></div>
         <h3>Dice Roller</h3>
         <div id="divClient-dicetextParsePreview">Dice Preview</div>
-        Dice: <input id="divClient-dicetext" type="text"></input>
-        <button id="divClient-Roll">Roll!</button>
-        <div id="divClient-RollResults">
-
+        <div style="display: grid; grid-column: auto; grid-template-columns: auto auto; height: 2em;">
+            <form id="divClient-RollForm">
+                Dice: <input id="divClient-dicetext" type="text" style="height: 2em;"></input>            
+            </form>
+            <button id="divClient-Roll" style="height: 2em;">Roll!</button>
         </div>
+        
+        <div id="divClient-RollResults"> </div>
         <!-- <button id="divClient-Roll">Roll!</button> -->
     </div>
 </div>
@@ -46,6 +50,9 @@
     var divClientRollResults = document.getElementById('divClient-RollResults');
     var divClientDiceText = document.getElementById('divClient-dicetext');
     var divClientDiceTextParsePreview = document.getElementById('divClient-dicetextParsePreview');
+
+    var divClientDiceRollForm = document.getElementById('divClient-RollForm');
+
 
     divSignSignIn.onclick = function(){
         if(divSignUsername.value.length > 0){
@@ -209,13 +216,43 @@
         
     }
 
-    divClientRoll.onclick = function(){
+    var fn_rolldice = function(){
+
         // regex the diceroll input form
         // handle change events
         var dicetext=  divClientDiceText.value.replace(/\s/, '');
-        var parsedData = parseDiceString(dicetext);
 
+        if(dicetext === '') return;
+
+        if(dicetext === '/cls'){
+
+            var cmd = 'cls';
+            socket.emit('consoleCommand', cmd);
+
+            divClientDiceText.value = '';
+            return;
+        }
+
+        var parsedData = parseDiceString(dicetext);
+        console.log('rolling dice');
         socket.emit('rollDice', parsedData);
+
+        // clear field after roll
+        var el = document.getElementById('divOptions-clearAfterRoll');
+        if(el.checked) divClientDiceText.value = "";
+    }
+
+    divClientDiceRollForm.onsubmit = function(e){
+        e.preventDefault(); // IMPORTANT, this prevents HTML from refreshing the page.        
+        console.log("onsubmit");
+        fn_rolldice();
+        
+    }
+
+
+    divClientRoll.onclick = function(){
+        console.log("onclick");
+        fn_rolldice();
     }
 
     // update player list field
