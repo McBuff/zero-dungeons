@@ -1,10 +1,37 @@
-    var express = require('express');
+var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
  
 app.get('/',function(req, res) {
     res.sendFile(__dirname + '/client/index.html');
 });
+
+app.get('/audio/oof.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/oof.mp3');
+});
+app.get('/audio/tada.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/tada.mp3');
+});
+
+app.get('/audio/diceroll_1_1.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_1_1.mp3');
+});
+
+app.get('/audio/diceroll_1_2.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_1_2.mp3');
+});
+
+app.get('/audio/diceroll_1_3.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_1_3.mp3');
+});
+app.get('/audio/diceroll_4_1.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_4_1.mp3');
+});
+app.get('/audio/diceroll_4_2.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_4_2.mp3');
+});
+
+
 app.use('/client',express.static(__dirname + '/client'));
  
 serv.listen(2000);
@@ -151,40 +178,88 @@ io.sockets.on('connection', function(socket){
         updateClientPlayerlists();
     });
 
-    socket.on('rollDice', function(data){
+    // if socket is NOT in sockets list, ignore rest of functions?
 
+    Number.prototype.pad = function(size) {
+        var s = String(this);
+        while (s.length < (size || 2)) {s = "0" + s;}
+        return s;
+    }
+
+    socket.on('rollDice', function(data){
         let player = Player.list[socket.guid]; // player who called the roll
-        let msg = '';
-        let dicetotal = 0;
-        let diceresults = '';
-        let diceused = '';
+        let msg = ''; // ex: 10 -> (d20)+10
+
+        let dicetotal = 0; // roll result value
+
+        let diceresults = ''; // used to compose msg
+        let diceused = '';  // used to compose msg
+        let critData = {didCrit:false,critType:'MISS'};
+
+        let registeredCrit = false;
+        // roll every die seperatly and produce a string with die+die+die+
         for(var i in data.dice){
             let die = data.dice[i];
             console.log("rolling d" + die);
             let result = ( Math.floor((Math.random() * die)) +1);
 
-            // generate message
+            // add dice roll to total dice score
             dicetotal += result;
 
+            // generate message stub
+            // make crit red?
+            if(die === 20 && ((result === 20) || (result === 1))){
+                /// take notion of CRIT
+                //TODO: move this elsewhere
+                if( (result === 20) ) critData.critType = 'HIT';
+                else critData.critType = 'MISS';
+
+                result = '<b style="color:#ff0000;">' +result+ '</b>';
+                critData.didCrit = true;
+                
+            }
+            
             diceresults = [diceresults, result].join('+'); // add + between new elements
             diceused = [diceused, die].join('+d');
             
         }
-
+        // formatting: cut off last '+' after loop
         diceresults = diceresults.slice(1, diceresults.length);
         diceused    = diceused.slice(1, diceused.length);
-        msg = `<b>${dicetotal}</b> -> ${diceresults} (${diceused})`;
+
+        // add dice modifiers to diceresults and build modifiers string
+        let dicemodifiersLogString = '';
+        for(var i in data.modifiers){
+            let mod = data.modifiers[i];
+            dicetotal += mod;
+            let sign = '+';
+            if(mod < 0) sign = '-';
+            dicemodifiersLogString += sign + mod;
+        }
+        if(dicemodifiersLogString === '') dicemodifiersLogString = '0';
+        msg = `<b>${dicetotal}</b> -> ${diceresults} (${diceused}) + (${dicemodifiersLogString})`;
 
 
+        // construct HTML code for dice log;
         let color = player.color;
-        let username = player.username;
-        let d = new Date();
-        let timestamp = '\t'+d.getHours() + ':' + d.getMinutes() + ':'+ d.getSeconds();
-        let html = `<div><b style="color:${color};">${username}: </b>${msg} [${timestamp}]</div>`
+        let username = player.username;        
+        let usertag = `<username style="color:${color};">${username}: </username>`;
+        usertag = `<b>${usertag}</b>`; // hard coded bold
 
+        // create timestamp for roll log.
+        let d = new Date();
+        let timestamp = ''+d.getHours() + ':' + d.getMinutes() + ':'+ (d.getSeconds()).pad();
+        timestamp = `<timestamp>[${timestamp}]</timestamp>`
+        // compose HTML message
+        let html = `<div>${timestamp} - ${usertag} \t${msg}</div>`
+
+        // transmit HTML message to all users
+        let numdice = data.dice.length;
+        console.log(numdice);
+        data = {html:html,critData:critData,numDice:numdice}
         for(var i in SOCKETS){
             var s = SOCKETS[i];
-            s.emit('addDiceRollResult', html);
+            s.emit('addDiceRollResult', data);
         }
 
         // finally, add dice to the TOP of the log, ( for late joiners )
