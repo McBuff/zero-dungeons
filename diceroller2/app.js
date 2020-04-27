@@ -1,43 +1,46 @@
-PORT= process.env.PORT || 2020;
+// PORT= process.env.PORT || 2020;
 
-var express = require('express');
-var app = express();
-var serv = require('http').Server(app);
+// var express = require('express');
+// var app = express();
+// var serv = require('http').Server(app);
  
-app.get('/',function(req, res) {
-    res.sendFile(__dirname + '/client/index.html');
-});
+// app.get('/',function(req, res) {
+//     res.sendFile(__dirname + '/client/index.html');
+// });
 
-app.get('/audio/oof.mp3',function(req, res) {
-    res.sendFile(__dirname + '/client/audio/oof.mp3');
-});
-app.get('/audio/tada.mp3',function(req, res) {
-    res.sendFile(__dirname + '/client/audio/tada.mp3');
-});
+// app.get('/audio/oof.mp3',function(req, res) {
+//     res.sendFile(__dirname + '/client/audio/oof.mp3');
+// });
+// app.get('/audio/tada.mp3',function(req, res) {
+//     res.sendFile(__dirname + '/client/audio/tada.mp3');
+// });
 
-app.get('/audio/diceroll_1_1.mp3',function(req, res) {
-    res.sendFile(__dirname + '/client/audio/diceroll_1_1.mp3');
-});
+// app.get('/audio/diceroll_1_1.mp3',function(req, res) {
+//     res.sendFile(__dirname + '/client/audio/diceroll_1_1.mp3');
+// });
 
-app.get('/audio/diceroll_1_2.mp3',function(req, res) {
-    res.sendFile(__dirname + '/client/audio/diceroll_1_2.mp3');
-});
+// app.get('/audio/diceroll_1_2.mp3',function(req, res) {
+//     res.sendFile(__dirname + '/client/audio/diceroll_1_2.mp3');
+// });
 
-app.get('/audio/diceroll_1_3.mp3',function(req, res) {
-    res.sendFile(__dirname + '/client/audio/diceroll_1_3.mp3');
-});
-app.get('/audio/diceroll_4_1.mp3',function(req, res) {
-    res.sendFile(__dirname + '/client/audio/diceroll_4_1.mp3');
-});
-app.get('/audio/diceroll_4_2.mp3',function(req, res) {
-    res.sendFile(__dirname + '/client/audio/diceroll_4_2.mp3');
-});
+// app.get('/audio/diceroll_1_3.mp3',function(req, res) {
+//     res.sendFile(__dirname + '/client/audio/diceroll_1_3.mp3');
+// });
+// app.get('/audio/diceroll_4_1.mp3',function(req, res) {
+//     res.sendFile(__dirname + '/client/audio/diceroll_4_1.mp3');
+// });
+// app.get('/audio/diceroll_4_2.mp3',function(req, res) {
+//     res.sendFile(__dirname + '/client/audio/diceroll_4_2.mp3');
+// });
 
 
-app.use('/client',express.static(__dirname + '/client'));
+// app.use('/client',express.static(__dirname + '/client'));
  
-serv.listen(PORT);
-console.log("Server started.");
+// serv.listen(PORT);
+// console.log("Server started.");
+
+console.log('diceroller loaded')
+
 
 var io = require('socket.io')(serv,{});
 
