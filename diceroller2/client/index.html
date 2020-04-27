@@ -1,34 +1,44 @@
 <div id="container" style="font-family: Arial, Helvetica, sans-serif;">
-    
+
     <div id="divSign">
         <h1>Log in</h1>
-        Username: <input id="divSign-username" type="text"></input><br>
-        Password:  <input id="divSign-password" type="password"></input> <br>
-        <button id="divSign-signin">Sign In</button>
+        <form id="divSign-logindataform" >
+            Username: <input id="divSign-username" type="text" autofocus></input><br>
+            Password: <input id="divSign-password" type="password"></input> <br>
+            <input type="submit" id="divSign-signin" value="Log in!">
+        </form>
+        
     </div>
 
     <div id="divClient" style="display:none;">
         <h3>Options</h3>
-        <input id="divOptions-playsounds" type="checkbox"></input> Play sounds 
-        <input id="divOptions-clearAfterRoll" type="checkbox"></input>Clear after Roll
+        <ul style="list-style-type: none; padding-left: 0px;">
+            <li><input id="divOptions-playsounds" type="checkbox"></input>Play sounds </li>
+            <li><input id="divOptions-clearAfterRoll" type="checkbox"></input>Clear after Roll</li>
+        </ul>
         <h3>Players</h3>
-        <div id="divClient-playerlist"></div>
+        <div id="divClient-playerlist" style="font-weight: bolder;"></div>
         <h3>Dice Roller</h3>
         <div id="divClient-dicetextParsePreview">Dice Preview</div>
         <div style="display: grid; grid-column: auto; grid-template-columns: auto auto; height: 2em;">
             <form id="divClient-RollForm">
-                Dice: <input id="divClient-dicetext" type="text" style="height: 2em;"></input>            
+                Dice: <input id="divClient-dicetext" type="text" style="height: 2em;"></input>
+                <input type="submit" value="Roll!">
             </form>
-            <button id="divClient-Roll" style="height: 2em;">Roll!</button>
+            <!-- <button id="divClient-Roll" style="height: 2em;">Roll!</button> -->
         </div>
         
         <div id="divClient-RollResults"> </div>
         <!-- <button id="divClient-Roll">Roll!</button> -->
     </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script> 
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
+    
+    
     var socket = io();
+       
 
     socket.on('disconnect', function(){
         alert('Disconnected from server');
@@ -41,11 +51,13 @@
     divSignUsername.value = "";
     var divSignPassword = document.getElementById('divSign-password');
     var divSignSignIn = document.getElementById('divSign-signin');
+    var divsignLogindataFormName = document.getElementById('divSign-logindataform');
+
 
     var divOptionsPlayAudio = document.getElementById('divOptions-playsounds');
 
     var divClient = document.getElementById('divClient');
-    var divClientRoll = document.getElementById('divClient-Roll');
+    //var divClientRoll = document.getElementById('divClient-Roll');
     var divClientPlayerlist = document.getElementById('divClient-playerlist');
     var divClientRollResults = document.getElementById('divClient-RollResults');
     var divClientDiceText = document.getElementById('divClient-dicetext');
@@ -54,14 +66,23 @@
     var divClientDiceRollForm = document.getElementById('divClient-RollForm');
 
 
-    divSignSignIn.onclick = function(){
+    function submitSignIn(){
+        // validate forms , then log in
         if(divSignUsername.value.length > 0){
-            console.log("sign in button pressed");
+            console.debug('Submitting login data');
             socket.emit('clientSignIn',{
-                username:divSignUsername.value,
-                password:divSignPassword.value
-            });
+                    username:divSignUsername.value,
+                    password:divSignPassword.value
+                });
         }
+    }
+
+    //divSignSignIn.onclick = function(){ submitSignIn();}
+
+    divsignLogindataFormName.onsubmit = function(e){
+        e.preventDefault(); // IMPORTANT, this prevents HTML from refreshing the page.               
+        console.log('logindata: OnSubmit')
+        submitSignIn();
     }
 
     socket.on('clientSignInResponse', function(res){
@@ -70,6 +91,8 @@
                 divSign.style="display:None;";
                 divClient.style="display:inline-block;";
                 
+                setTimeout( function(){divClientDiceText.focus();}, 50); // slight delay to prevant problems names
+                divClientDiceText.value = '';
             }
             else{
                 alert('Acces denied!');
@@ -242,6 +265,8 @@
         if(el.checked) divClientDiceText.value = "";
     }
 
+
+
     divClientDiceRollForm.onsubmit = function(e){
         e.preventDefault(); // IMPORTANT, this prevents HTML from refreshing the page.        
         console.log("onsubmit");
@@ -249,11 +274,10 @@
         
     }
 
-
-    divClientRoll.onclick = function(){
-        console.log("onclick");
-        fn_rolldice();
-    }
+    // divClientRoll.onclick = function(){
+    //     console.log("onclick");
+    //     fn_rolldice();
+    // }
 
     // update player list field
     socket.on('setPlayerList', function(data){

@@ -1,12 +1,4 @@
-// PORT= process.env.PORT || 2020;
 
-// var express = require('express');
-// var app = express();
-// var serv = require('http').Server(app);
- 
-// app.get('/',function(req, res) {
-//     res.sendFile(__dirname + '/client/index.html');
-// });
 
 app.get('/audio/oof.mp3',function(req, res) {
     res.sendFile(__dirname + '/client/audio/oof.mp3');
@@ -39,10 +31,15 @@ app.get('/audio/diceroll_4_2.mp3',function(req, res) {
 // serv.listen(PORT);
 // console.log("Server started.");
 
-console.log('diceroller loaded')
+console.log('diceroller loading');
+
 
 
 var io = require('socket.io')(serv,{});
+//io = io.of('namspace');
+//io = io.sockets;
+
+//var io = require('socket.io')(serv,{});
 
 SOCKETS = {}
 
@@ -142,6 +139,7 @@ var authenticateUser = function(data, cb){
     
 }
 
+//io.sockets.on('connection', function(socket){
 io.sockets.on('connection', function(socket){
     //console.log('socket connection');
 

@@ -1,8 +1,11 @@
-console.log('index.js');
-console.log(__dirname);
+
 
 // GLOBALS
 PORT = process.env.PORT || 8080;
+
+
+console.log('index.js');
+console.log(__dirname);
 
 var express = require('express');
 app = express();
@@ -15,7 +18,9 @@ app.get('/',function(req, res) {
 
 app.get('/diceroller',function(req, res) {
     console.log('User requested diceroller');
+    console.log('called with args: ' + req.params.roomname);
     dcapp = require('./diceroller2/app.js');
+    
     res.sendFile(__dirname+'/diceroller2/client/index.html');
 });
 
