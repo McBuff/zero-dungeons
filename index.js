@@ -5,7 +5,7 @@ console.log(__dirname);
 PORT = process.env.PORT || 8080;
 
 var express = require('express');
-var app = express();
+app = express();
 serv = require('http').Server(app);
 
 app.get('/',function(req, res) {

@@ -8,30 +8,30 @@
 //     res.sendFile(__dirname + '/client/index.html');
 // });
 
-// app.get('/audio/oof.mp3',function(req, res) {
-//     res.sendFile(__dirname + '/client/audio/oof.mp3');
-// });
-// app.get('/audio/tada.mp3',function(req, res) {
-//     res.sendFile(__dirname + '/client/audio/tada.mp3');
-// });
+app.get('/audio/oof.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/oof.mp3');
+});
+app.get('/audio/tada.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/tada.mp3');
+});
 
-// app.get('/audio/diceroll_1_1.mp3',function(req, res) {
-//     res.sendFile(__dirname + '/client/audio/diceroll_1_1.mp3');
-// });
+app.get('/audio/diceroll_1_1.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_1_1.mp3');
+});
 
-// app.get('/audio/diceroll_1_2.mp3',function(req, res) {
-//     res.sendFile(__dirname + '/client/audio/diceroll_1_2.mp3');
-// });
+app.get('/audio/diceroll_1_2.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_1_2.mp3');
+});
 
-// app.get('/audio/diceroll_1_3.mp3',function(req, res) {
-//     res.sendFile(__dirname + '/client/audio/diceroll_1_3.mp3');
-// });
-// app.get('/audio/diceroll_4_1.mp3',function(req, res) {
-//     res.sendFile(__dirname + '/client/audio/diceroll_4_1.mp3');
-// });
-// app.get('/audio/diceroll_4_2.mp3',function(req, res) {
-//     res.sendFile(__dirname + '/client/audio/diceroll_4_2.mp3');
-// });
+app.get('/audio/diceroll_1_3.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_1_3.mp3');
+});
+app.get('/audio/diceroll_4_1.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_4_1.mp3');
+});
+app.get('/audio/diceroll_4_2.mp3',function(req, res) {
+    res.sendFile(__dirname + '/client/audio/diceroll_4_2.mp3');
+});
 
 
 // app.use('/client',express.static(__dirname + '/client'));
