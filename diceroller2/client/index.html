@@ -239,6 +239,27 @@
         
     }
 
+    var fn_handleconsolecommand = function(command){
+
+        if(command === 'cls'){
+
+            //var cmd = 'cls';
+            socket.emit('consoleCommand', {cmd:'cls'});
+
+            divClientDiceText.value = '';
+            return;
+        }
+
+        if(command.includes('col')){
+            let colorval = command.slice(4, command.length);
+            socket.emit('consoleCommand', {cmd:'col',args:colorval});
+            divClientDiceText.value = '';
+            return;
+        }
+
+        divClientDiceText.value = '';
+    }
+
     var fn_rolldice = function(){
 
         // regex the diceroll input form
@@ -247,15 +268,15 @@
 
         if(dicetext === '') return;
 
-        if(dicetext === '/cls'){
+        // if(dicetext === '/cls'){
 
-            var cmd = 'cls';
-            socket.emit('consoleCommand', cmd);
+        //     var cmd = 'cls';
+        //     socket.emit('consoleCommand', cmd);
 
-            divClientDiceText.value = '';
-            return;
-        }
-
+        //     divClientDiceText.value = '';
+        //     return;
+        // }
+    
         var parsedData = parseDiceString(dicetext);
         console.log('rolling dice');
         socket.emit('rollDice', parsedData);
@@ -270,7 +291,18 @@
     divClientDiceRollForm.onsubmit = function(e){
         e.preventDefault(); // IMPORTANT, this prevents HTML from refreshing the page.        
         console.log("onsubmit");
-        fn_rolldice();
+        var dicetext=  divClientDiceText.value;
+
+        if(dicetext !== ''){
+            if(dicetext[0] === '/'){
+                    fn_handleconsolecommand( dicetext.slice(1, dicetext.length));
+            }
+            else{
+                fn_rolldice();
+            }
+            
+        }
+        
         
     }
 

@@ -275,11 +275,11 @@ io.sockets.on('connection', function(socket){
     });
         
     
-    socket.on('consoleCommand', function(cmd){
+    socket.on('consoleCommand', function(data){
         console.log('========================');
         console.log('Received Console Command');
         console.log('========================');
-        if(cmd === 'cls'){
+        if(data.cmd === 'cls'){
             console.log('clearing dicelog');
             DICELOG = ''; 
             
@@ -289,6 +289,14 @@ io.sockets.on('connection', function(socket){
             }
 
             return;
+        }
+
+        if(data.cmd ==='col'){
+            console.log('changing player col ' + data.args);
+            let p = Player.list[socket.guid];
+            p.color = data.args;
+            updateClientPlayerlists();
+            
         }
     })
 
