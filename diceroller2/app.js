@@ -121,8 +121,9 @@ Player.list = {};
 var authenticateUser = function(data, cb){
 
     if( LOGINSETTINGS.mode ==='FREEROOM'){
+        HEROKU_CONFIG_PW = process.env.DICEROLL_ROOMKEY || LOGINSETTINGS.password;
         console.log('Server is in ROOM mode');
-        if(data.password === LOGINSETTINGS.password){
+        if(data.password === HEROKU_CONFIG_PW){
             console.log('user admitted');
             cb({result:true});    
         }
