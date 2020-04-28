@@ -1,3 +1,4 @@
+## Feature Requests
 -[ ] knoppen voor dice
 -[x] chooseable colors
 -[x] Clear log
