@@ -25,6 +25,12 @@ app.get('/audio/diceroll_4_2.mp3',function(req, res) {
     res.sendFile(__dirname + '/client/audio/diceroll_4_2.mp3');
 });
 
+app.get('/diceroller/img/:im',function(req, res) {
+    
+    console.log('user requested placeholde rimage' + req.params.im);
+    res.sendFile(__dirname + '/client/img/' + req.params.im);
+});
+
 
 // app.use('/client',express.static(__dirname + '/client'));
  
@@ -255,7 +261,7 @@ io.sockets.on('connection', function(socket){
         let timestamp = ''+d.getHours() + ':' + d.getMinutes() + ':'+ (d.getSeconds()).pad();
         timestamp = `<timestamp>[${timestamp}]</timestamp>`
         // compose HTML message
-        let html = `<div>${timestamp} - ${usertag} \t${msg}</div>`
+        let html = `<li>${timestamp} - ${usertag} \t${msg}</li>`
 
         // transmit HTML message to all users
         let numdice = data.dice.length;

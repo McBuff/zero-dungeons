@@ -17,12 +17,21 @@ app.get('/',function(req, res) {
 });
 
 app.get('/diceroller',function(req, res) {
-    console.log('User requested diceroller');
-    console.log('called with args: ' + req.params.roomname);
+    console.log('client requested diceroller');
     dcapp = require('./diceroller2/app.js');
-    
+    res.type = '.html';
     res.sendFile(__dirname+'/diceroller2/client/index.html');
+
+    
 });
+
+app.get('/diceroller/diceclient.js', function(req, res){
+//app.get('*diceclient.js', function(req, res){ // this one works
+    console.log('client requesting diceclient');
+    res.type = '.js';
+    res.sendFile(__dirname+ '/diceroller2/client/diceclient.js');
+});
+
 
 app.use('/', express.static(__dirname));
 
