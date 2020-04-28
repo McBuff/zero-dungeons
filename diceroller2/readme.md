@@ -1,7 +1,7 @@
 ## Feature Requests
--[ ] knoppen voor dice
--[x] chooseable colors
--[x] Clear log
--[x] enter to log in
--[ ] no negative rolls
--[ ] portraits
+ - [ ] knoppen voor dice
+ - [ ] chooseable colors
+ - [x] Clear log
+ - [X] enter to log in
+ - [ ] no negative rolls
+ - [ ] portraits
