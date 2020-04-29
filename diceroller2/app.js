@@ -111,7 +111,7 @@ var updateClientPlayerlists = function (){
 
     for (var i in Player.list){
         var player = Player.list[i];
-        playernames.push( {username:player.username, color:player.color});
+        playernames.push( {username:player.username, color:player.color, guid:player.socket.guid});
 
     }
     console.log('sending player list to players');

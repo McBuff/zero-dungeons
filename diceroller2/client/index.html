@@ -2,48 +2,55 @@
     <title>Dice Roller</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel='stylesheet' href="https://bootswatch.com/4/flatly/bootstrap.min.css" type="text/css">
+    <!-- <link rel='stylesheet' href="https://bootswatch.com/4/flatly/bootstrap.min.css" type="text/css"> -->
+    <link rel='stylesheet' href="https://bootswatch.com/4/darkly/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+    <!-- <script
+			  src="https://code.jquery.com/jquery-3.5.0.min.js"
+			  integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
+			  crossorigin="anonymous"></script> -->
+    
 </head>
 <body>
-<div class="container">
+<div class="float-left">
 
-    <div id="divSign">
-        <h1>Log in</h1>
-        <form id="divSign-logindataform" class='input-group mb-3' style="width: 50%;">
+    <div id="divSign" class='FadeUpOnClick animated fadeIn'>
+        <h2>Log in</h2>
+        <form id="divSign-logindataform" class='input-group mb-3' >
             <input id="divSign-username" type="text" autofocus placeholder="User name" class="form-control"></input>
             <input id="divSign-password" type="password" placeholder="Password" class="form-control"></input>
             <input type="submit" id="divSign-signin" value="Log in!" class="btn btn-primary">
         </form>
         
     </div>
-
-    <div id="divClient" style="display:none;" >
-        <h3 >Options</h3>
-        <ul style="list-style-type: none; padding-left: 0px;">
-            <li><input id="divOptions-playsounds" type="checkbox"></input>Play sounds </li>
-            <li><input id="divOptions-clearAfterRoll" type="checkbox"></input>Clear after Roll</li>
-        </ul>
-        <h3>Players</h3>
-        <div id="divClient-playerlist" style="font-weight: bolder;" class='card'></div>
-        <h3>Dice Roller</h3>
-        <div id="divClient-dicetextParsePreview">Dice Preview</div>
-        <div style="display: grid; grid-column: auto; grid-template-columns: auto auto; height: 2em;">
-            <form id="divClient-RollForm" class='input-group'>
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Die</span>    
-                </div>
-                <input id="divClient-dicetext" type="text" placeholder="1d20+10" class="form-control"></input>
-                <input type="submit" value="Roll!" class="btn btn-primary">
-            </form>
-            <!-- <button id="divClient-Roll" style="height: 2em;">Roll!</button> -->
-        </div>
-        <br>
-        <div class='card'>
-            <ul id="divClient-RollResults" class="list-unstyled">
-            <!-- This element is filled with items -->
+    <div class="anchor" style="position:absolute; top: 0;">
+        <div id="divClient" style="display:none;">
+            <h3 >Options</h3>
+            <ul style="list-style-type: none; padding-left: 0px;">
+                <li><input id="divOptions-playsounds" type="checkbox"></input>Play sounds </li>
+                <li><input id="divOptions-clearAfterRoll" type="checkbox"></input>Clear after Roll</li>
             </ul>
+            <h3>Players</h3>
+            <div id="divClient-playerlist" style="font-weight: bolder;" class='card'></div>
+            <h3>Dice Roller</h3>
+            <div id="divClient-dicetextParsePreview">Dice Preview</div>
+            <div style="display: grid; grid-column: auto; grid-template-columns: auto auto; height: 2em;">
+                <form id="divClient-RollForm" class='input-group'>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Die</span>    
+                    </div>
+                    <input id="divClient-dicetext" type="text" placeholder="1d20+10" class="form-control"></input>
+                    <input type="submit" value="Roll!" class="btn btn-primary">
+                </form>
+                <!-- <button id="divClient-Roll" style="height: 2em;">Roll!</button> -->
+            </div>
+            <br>
+            <div class='card'>
+                <ul id="divClient-RollResults" class="list-unstyled">
+                <!-- This element is filled with items -->
+                </ul>
+            </div>
         </div>
-        <!-- <button id="divClient-Roll">Roll!</button> -->
     </div>
 </div>
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>  -->

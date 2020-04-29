@@ -51,9 +51,24 @@
     socket.on('clientSignInResponse', function(res){
             if(res.succes){
                 console.log('Login succes!');
-                divSign.style="display:None;";
+
+                // switch from login div to client div
+                // divSign.style="display:None;";
                 divClient.style="display:inline-block;";
+
+                divSign.classList.add('animated');
+                divSign.classList.add('fadeOutUp');
                 
+                setTimeout( function(){divSign.style="display:None;";}, 1000); // disables login element
+                
+                divClient.classList.add('animated');
+                divClient.classList.add('faster');
+                divClient.classList.add('fadeInUp');
+                divClient.style="display:inline-block;"; 
+                
+
+
+
                 setTimeout( function(){divClientDiceText.focus();}, 50); // slight delay to prevant problems names
                 divClientDiceText.value = '';
             }
@@ -139,6 +154,7 @@
         return result;
     }
 
+    // parses 
     function parseDiceString(dicestring){
 
         // structure of return value
@@ -173,6 +189,9 @@
         return parsedData;
     }
 
+
+
+    // constructs a string from given dice + modifiers
     function createParsedDiceMessage(dice, modifiers){
         var dicemsg = '';
         var modifiersmsg = '';
@@ -193,6 +212,8 @@
         return `Dice: (${dicemsg}), Modifiers: (${modifiersmsg})`;
     }
 
+
+    // responds to keypresses, calls parseDiceString
     divClientDiceText.onkeyup = function(){
         // handle change events
         var dicetext=  divClientDiceText.value.replace(/\s/, '');
@@ -202,6 +223,7 @@
         
     }
 
+    // Handles parsing console commands and sends them to the server / or executes them locally
     var fn_handleconsolecommand = function(command){
 
         if(command === 'cls'){
@@ -273,37 +295,100 @@
         
     }
 
-    // divClientRoll.onclick = function(){
-    //     console.log("onclick");
-    //     fn_rolldice();
-    // }
-
+    let Playerslist = {};
     // update player list field
     socket.on('setPlayerList', function(data){
-        divClientPlayerlist.innerHTML = '';
+        
+        console.log('Updating player data:');
+        console.log(data);
+        console.log('stored player data:');
+        console.log(Playerslist);
 
+        // List and delete players that have left
+        for(var i in Playerslist){
+            
+            let player = Playerslist[i];
+            let playerActive = false;
+            console.log('checking if player is still active: ' + player.username);
+
+            // if the player exists in the updated list, the player is still present,
+            // if the player is NOT in the playerlist, play remove effect & delete after 2 seconds
+            for(y in data){
+                let serverPlayer = data[y];
+                if( player.guid === serverPlayer.guid)                {
+                    // if this place is reached, that means that the player is still in the room
+                    playerActive = true;
+                    console.log('player is still active');
+                    break;
+                }
+            }
+            
+            if(playerActive === false){
+                console.log(`${player.username} as left, removing his shit`);
+                // clear player from playerlist (after 2s)
+                
+                console.log(`removing ${player.username}'s guid ${player.guid}`);
+                playerHtmlElement = document.getElementById(player.guid);
+                console.log(playerHtmlElement);
+
+
+                // set an animation for the player to leave
+                setTimeout(function(){ 
+                    // this is a hack if I ever saw one, first timeout creates animations,
+                    // then start a new delay that deletes the player
+                    //let guid = player.guid;    
+                    playerHtmlElement = document.getElementById(player.guid);
+                    playerHtmlElement.classList.add('animated');
+                    playerHtmlElement.classList.add('fadeOutRight');
+                    setTimeout(function(){delete Playerslist[player.guid];
+                                            playerHtmlElement.parentNode.removeChild(playerHtmlElement);
+                                        }, 500)
+                    }, 1000);
+            } 
+
+        }
+
+        // List players that have been added
+
+        // list players that have been updated
+        //divClientPlayerlist.innerHTML = '';
+        let fancydelayAnimation = 0;
         for(var i in data){
+            
+            let animationHtml = 'animated fadeInRight';
+            
+            let storedPlayerData = Playerslist[data[i].guid];
+            if(storedPlayerData){
+                
+                console.log(`${storedPlayerData.username} is already in playerlist`);
+                playerHtmlElement = document.getElementById(storedPlayerData.guid).classList.remove('animated');
+                Playerslist[data[i].guid] = data[i];
+                //animationHtml = '';
+                continue;
+            }
+            fancydelayAnimation += 65;
+            Playerslist[data[i].guid] = data[i];
+
             var username = data[i].username;
+            var guid = data[i].guid;
             var color = data[i].color;
             let imgname = `./img/${username}.png`
 
             // todo: create stump HTML file for this
-            let htmlcode = '<div class="media">';
+            let htmlcode = `<div id=${guid} class="media ${animationHtml}" style="animation-delay:${fancydelayAnimation}ms;">`;
             htmlcode    += '<a class="pull-left" href="#">';
             htmlcode    += `<img class="media-object" src= ${imgname} width=40>`;
             htmlcode    += '</a>';
             htmlcode    += '<div class="media-body">';
             htmlcode    += `<h4 class="media-heading" style="color:${color};">${username}</h4>`;
             htmlcode    += '</div>';
-            
-            
-            
 
             // divClientPlayerlist.innerHTML += '<div style="color:' +color+  ';">' + username + '</div>';
             divClientPlayerlist.innerHTML += htmlcode;
         }
     });
 
+    // appends new html data to dicelog
     socket.on('addDiceRollResult', function(data){
         // add dice result on top of tray
         // currently server decides HTML coding
@@ -331,10 +416,9 @@
 
     });
 
+    // copies dicelog from server
     socket.on('transferDiceLog', function(data){
 
         console.log('Receiving dicelog' + data.log);
         divClientRollResults.innerHTML = data.log;
     });
-
-    
