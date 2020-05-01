@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/McBuff/zero-dungeons#readme",
   "dependencies": {
+    "better-logging": "^4.3.0",
     "express": "^4.17.1",
     "socket.io": "^2.3.0"
   }

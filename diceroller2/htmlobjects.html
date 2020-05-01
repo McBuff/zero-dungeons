@@ -1,3 +1,6 @@
+<!DOCTYPE HTML>
+<meta charset="UTF-8">
+<html>
 <head>
     <title>Dice Roller</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -6,35 +9,103 @@
     <!-- <link rel='stylesheet' href="https://bootswatch.com/4/darkly/bootstrap.min.css" type="text/css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
     <link rel='stylesheet' href="htmlobjects.css"/>
-    <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+    <script src="./client/diceparser.js"></script>
     
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body class='container wrapper'>
+<body class='float-left'>
 
     <h3>Dice Buttons</h3>
-    <div>
-        
-            <!-- <button type="button" class="animated infinite bounce slow btn btn-primary">d4</button> -->
-            
-            <button type="button" class="btn die btn-primary">d8</button>
-            <button type="button" class="btn die btn-primary">d6</button>
-            <button type="button" class="btn die btn-primary">d8</button>
-            <button type="button" class="btn die btn-primary">d10</button>
-            <button type="button" class="btn die btn-primary">d12</button>
-            <button type="button" class="btn die btn-primary">d20</button>            
-            <button type="button" class="btn die btn-primary">d100</button>
+    <div>        
+            <!-- <button type="button" class="animated infinite bounce slow btn btn-primary">d4</button> -->            
+            <button type="button" id='d4' class="btn die dieAdd btn-primary">4</button>
+            <button type="button" id='d6' class="btn die dieAdd btn-primary">6</button>
+            <button type="button" id='d8' class="btn die dieAdd btn-primary">8</button>
+            <button type="button" id='d10' class="btn die dieAdd btn-primary">10</button>
+            <button type="button" id='d12' class="btn die dieAdd btn-primary">12</button>
+            <button type="button" id='d20' class="btn die dieAdd btn-primary">20</button>            
+            <button type="button" id='d100'class="btn die dieAdd btn-primary">100</button>
 
         </div>
 
     </div>
 
+    <div id='dicerack' class="row">
+        <ul>
+
+
+        </ul>
+    </div>
+
     <h3>Players</h3>
     <div>
         <li class="animated fadeinRight">playername</li>
-
     </div>
     <!-- <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script> -->
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="./htmlobjects.js"></script>
+
+    <script>
+      
+        
+        function addDice(dieType){
+            //$('#dicerack').innerHTML += 'YEEEY';
+            //let diceRack = document.getElementById('dicerack');
+            //diceRack.innerHTML += `<button type="button" id='${dieType}' class="btn die btn-secondary">${dieType}</button>`;
+
+            $('<button />',{
+                type:'button',
+                class:'btn die dieRem btn-secondary',
+                id: dieType,
+                text: dieType.slice(1, dieType.length),
+                click:function(){alert('what.. this works???')}
+                
+            }).appendTo('#dicerack');
+
+            
+            console.log(dieType);
+        }
+
+        $('#d4').click(function(){addDice('d4')});
+        $('#d6').click(function(){addDice('d6')});
+        $('#d8').click(function(){addDice('d8')});
+        $('#d10').click(function(){addDice('d10')});
+        $('#d12').click(function(){addDice('d12')});
+        $('#d20').click(function(){addDice('d20')});
+
+    </script>
+    
+    <script>
+        // var x = document.createElement('script');
+        // x.src = './client/diceparser.js';
+        // document.getElementsByTagName("head")[0].appendChild(x);
+        console.log('=========');
+        console.log('Dice');
+        console.log('=========');
+        console.log('testing die c-tors');
+        const d10 =  new Die(10);
+        const d20 =  new Die(5);
+        const dInvalid = new Die('sepultura');
+        
+        console.log(d10.ToDiceString());
+        console.log(d20.ToDiceString());
+        console.log(dInvalid.ToDiceString());
+
+        console.log('testing die parse');
+        dInvalid.FromDiceString('notadice');
+        d20.FromDiceString('d20');
+        
+
+        console.log(d10.ToDiceString());
+        console.log(d20.ToDiceString());
+        console.log(dInvalid.ToDiceString());
+
+        console.log('=========');
+        console.log('Dicestacks');
+        console.log('=========');
+
+
+    </script>
 </body>
+</html>
 

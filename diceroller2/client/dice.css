@@ -1,6 +1,6 @@
 
 button.die{
-    margin: 1px;
+    margin: 3px;
     width: 50px;
     height: 50px;
     animation-duration: 1s;
@@ -8,7 +8,9 @@ button.die{
     text-align: center; 
     line-height: 1em;    
 }
-
+button.dieAdd{
+    background-color: gray;
+}
 button.dieAdd:hover{
     transform:rotate(20deg)scale(1.5);
     background-color: seagreen;
@@ -22,6 +24,22 @@ button.dieRem:hover{
     border-color: tomato;
     text-decoration-thickness: bold;
     
+}
+
+#dicerack{
+    /* height: 5em; */
+    border-color: black;
+    border-style: dashed;
+    border-width: 1px;
+    background-color: #202020;
+}
+
+#dicestack{
+    border-color: black;
+    border-style: dashed;
+    border-width: 1px;
+    background-color: #404040;
+    min-height: 3em;
 }
 
 #d4{
@@ -48,6 +66,6 @@ clip-path: polygon(50% 0%, 80% 10%, 100% 35%, 100% 70%, 80% 90%, 50% 100%, 20% 9
 
 }
 
-#dicerack{
-    background-color: whitesmoke;
+#dicestackmodifier{
+    width: 3em;
 }

@@ -8,13 +8,16 @@
     <!-- <script
 			  src="https://code.jquery.com/jquery-3.5.0.min.js"
 			  integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
-			  crossorigin="anonymous"></script> -->
+              crossorigin="anonymous"></script> -->
+              
+    <link rel='stylesheet' href='./dice.css'>
+    
     
 </head>
 <body>
 <div class="float-left">
 
-    <div id="divSign" class='FadeUpOnClick animated fadeIn'>
+    <div id="divSign" class='FadeUpOnClick animated fadeIn anchor' style="position: absolute;">
         <h2>Log in</h2>
         <form id="divSign-logindataform" class='input-group mb-3' >
             <input id="divSign-username" type="text" autofocus placeholder="User name" class="form-control"></input>
@@ -32,7 +35,33 @@
             </ul>
             <h3>Players</h3>
             <div id="divClient-playerlist" style="font-weight: bolder;" class='card'></div>
+            
             <h3>Dice Roller</h3>
+            <div id='dicerack' >
+                <button type="button" id='d4' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d4')">4</button>
+                <button type="button" id='d6' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d6')">6</button>
+                <button type="button" id='d8' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d8')">8</button>
+                <button type="button" id='d10' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d10')">10</button>
+                <button type="button" id='d12' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d12')">12</button>
+                <button type="button" id='d20' class="btn die dieAdd btn-primary"onclick="dicestack_addDie('d20')">20</button>            
+                <button type="button" id='d100'class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d100')" >100</button>
+            </div>
+            <div id='dicestackcontainer' class="row">
+                <div id='dicestack' class="col-md-9">
+                    <!-- STACK -->
+                </div>
+                <div id='dicestackmodcontainer' class="col-md-1 input-group ">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Modifier</span>
+                        <input type="text" id='dicestackmodifier' class="" placeholder="+0">
+                        <div class="input-group-append" id="button-addon4">
+                            <button class="btn btn-secondary" type="button">-</button>
+                            <button class="btn btn-secondary" type="button">+</button>
+                          </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="divClient-dicetextParsePreview">Dice Preview</div>
             <div style="display: grid; grid-column: auto; grid-template-columns: auto auto; height: 2em;">
                 <form id="divClient-RollForm" class='input-group'>
@@ -55,6 +84,8 @@
 </div>
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>  -->
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src='./simplelogger.js'></script>
+<script src='./diceparser.js'></script>
 <script src ='./diceclient.js' ></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>

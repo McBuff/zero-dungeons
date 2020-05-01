@@ -26,21 +26,41 @@ app.get('/audio/diceroll_4_2.mp3',function(req, res) {
 });
 
 app.get('/diceroller/img/:im',function(req, res) {
-    
-    console.log('user requested placeholde rimage' + req.params.im);
-    res.sendFile(__dirname + '/client/img/' + req.params.im);
+    // if user requests ANY image, send it, unless it doesn't exist, then send placeholder.
+    console.log('user requested image: ' + req.params.im);
+    // check if file exists, otherwis
+    const fs = require('fs');
+
+    let _filepath = __dirname + '/client/img/' + req.params.im;
+    if( fs.existsSync(_filepath) === false){
+        console.debug('User requested an image that does not exists, sending placeholder.png');
+        _filepath= __dirname + '/client/img/' + 'placeholder.png';
+    }
+    res.sendFile(_filepath);
 });
+
+app.get('/diceroller/dice.css',function(req, res) {
+    console.log('client requested dice.css');
+    res.sendFile(__dirname + '/client/dice.css');
+});
+app.get('/diceroller/simplelogger.js',function(req, res) {
+    console.log('client requested js: simplelogger.js');
+    res.sendFile(__dirname + '/client/simplelogger.js');
+});
+
+app.get('/diceroller/diceparser.js',function(req, res) {
+    console.log('client requested js: diceparser.js');
+    res.sendFile(__dirname + '/client/diceparser.js');
+});
+
 
 
 // app.use('/client',express.static(__dirname + '/client'));
  
 // serv.listen(PORT);
 // console.log("Server started.");
-
-console.log('diceroller loading');
-
-
-
+require('better-logging')(console);
+console.log('DiceRollerApp Loading...');
 var io = require('socket.io')(serv,{});
 //io = io.of('namspace');
 //io = io.sockets;
@@ -60,6 +80,7 @@ USERCOLORS = ['Brown', 'CornflowerBlue', 'Chocolate', 'DarkGreen', 'Indigo'];
 
 DEBUGPWD = 'dnd';
 LOGINSETTINGS = {mode:'FREEROOM', password:'DND'};
+console.info(`Server is in mode: ${LOGINSETTINGS.mode}`);
 //LOGINSETTINGS = {mode:'ACCOUNTS', password:'DND'};
 
 DICELOG = '';
@@ -75,7 +96,7 @@ function generateGUID(){
 
 function pullColor()
 {
-    console.log("pulling color");
+    console.debug("pulling color from colorcycle");
     color = USERCOLORS.shift();    
     USERCOLORS.push(color);
     return color;    
@@ -92,7 +113,7 @@ var Player = function(socket){
 
     //add self to players list
     Player.list[socket.guid] = self;
-    console.log('Created player with username ' + self.username);
+    console.debug('Created player with username ' + self.username);
 
     return self;
 
@@ -128,16 +149,16 @@ var authenticateUser = function(data, cb){
 
     if( LOGINSETTINGS.mode ==='FREEROOM'){
         HEROKU_CONFIG_PW = process.env.DICEROLL_ROOMKEY || LOGINSETTINGS.password;
-        console.log('Server is in ROOM mode');
+        // console.log('Server is in ROOM mode');
         if(data.password === HEROKU_CONFIG_PW){
-            console.log('user admitted');
+            console.log(`User: '${data.username}' admitted`);
             cb({result:true});    
         }
         else cb({result:false});
     }
     else if( LOGINSETTINGS.mode == 'ACCOUNTS'){
         if(USERS[data.username] === data.password){
-            console.log('user authenticated succesfully')
+            console.debug('user authenticated succesfully')
             cb({result:true});
             
         }
@@ -157,7 +178,7 @@ io.sockets.on('connection', function(socket){
 
         authenticateUser(data, function(res){
             if(res.result === true){
-                console.log('succes');
+                console.log('Initializing Player data');
                 // keep track of this socket
                 socket.guid = generateGUID();
                 SOCKETS[socket.guid] = socket;
@@ -165,17 +186,19 @@ io.sockets.on('connection', function(socket){
                 
                 Player.onConnect(socket);
                 
-                // send player active dicelog
-                console.log('transfering dicelog: ' + DICELOG);
-                
+                // Send current dicelog to player
+                console.log('transfering dicelog: ');
+                console.debug(DICELOG.toString());
+
                 socket.emit('transferDiceLog',{log:DICELOG.toString()} );
                 
+                // Send all players an updated player list
                 updateClientPlayerlists();
                 
                 socket.emit('clientSignInResponse', {succes:true});
             }
             else {
-                console.log('failed');
+                console.warn('User authentication Failed');
                 socket.emit('clientSignInResponse', {succes:false});
             }
         });
@@ -197,6 +220,8 @@ io.sockets.on('connection', function(socket){
     }
 
     socket.on('rollDice', function(data){
+        // data format v1
+        // {dice:[20,20,10,10...], modifiers:[+1,-1]}
         let player = Player.list[socket.guid]; // player who called the roll
         let msg = ''; // ex: 10 -> (d20)+10
 

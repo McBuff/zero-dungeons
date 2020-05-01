@@ -1,7 +1,14 @@
   
       
     var socket = io();
+
+    SETTINGS = {}
+    SETTINGS.DEBUG = {debugmode:true,autologin:true}
+    SETTINGS.PLAYERLIST = {portraitsize:'96px'}
+    //PLAYERLISTSETTINGS = {portraitsize:'60px'}
     
+    var logger = new simplelogger('DiceClientMain');
+    logger.on();
 
     socket.on('disconnect', function(){
         alert('Disconnected from server');
@@ -28,10 +35,21 @@
 
     var divClientDiceRollForm = document.getElementById('divClient-RollForm');
 
+    let dicepool = new DicePool();
+    let modifierpool = new ModifierPool();
+
+    /* Autologin for localhost connection*/
+    if(location.hostname === 'localhost' && SETTINGS.DEBUG.autologin){
+        console.log('DICECLIENT: running on localhost'),
+        console.log(location);
+        divSignUsername.value = 'DEBUG';
+        divSignPassword.value = 'DND';
+        submitSignIn();
+    }
 
     function submitSignIn(){
         // validate forms , then log in
-        if(divSignUsername.value.length > 0){
+        if(divSignUsername.value.length > SETTINGS.DEBUG.autologin){
             console.debug('Submitting login data');
             socket.emit('clientSignIn',{
                     username:divSignUsername.value,
@@ -39,8 +57,7 @@
                 });
         }
     }
-
-    //divSignSignIn.onclick = function(){ submitSignIn();}
+    
 
     divsignLogindataFormName.onsubmit = function(e){
         e.preventDefault(); // IMPORTANT, this prevents HTML from refreshing the page.               
@@ -155,8 +172,8 @@
     }
 
     // parses 
-    function parseDiceString(dicestring){
-
+    function parseDiceString_DEPR(dicestring){
+        console.warn('parseDiceString_DEPR is depricated');
         // structure of return value
         var parsedData = {dice:[],modifiers:[]};
 
@@ -171,10 +188,35 @@
         //var reDice = /[-+]?(?<!\w)\d*(?i)d\d*/; //ex: [1d20, +1d20,-1d20, +d20, 1D120]
         var dieMatches = [...dicetext.matchAll(reDice)];
         console.log(`found ${dieMatches.length} dice group(s) in string: ${dieMatches}`);
+
+        // sort dicegroups
+
+        // sorts all typed dice from highest to lowest
+        dieMatches.sort(function(a,b){
+            let aVal = parseInt( a[0].slice(2, a[0].length) ); // start at 2 due to format: +d10
+            let bVal = parseInt( b[0].slice(2, b[0].length)  );
+            console.log(`a: ${aVal} - b ${bVal}`);
+            return bVal - aVal;
+        });
+
+        
+        $('#dicestack').empty();
+
         for (var i in dieMatches){
-            var parsedDie = parseDie(dieMatches[i][0]); //WARNING: make sure this is safe
+            let parsedDie = parseDie(dieMatches[i][0]); //WARNING: make sure this is safe
             console.log(`Parsed die: ${parsedDie}`);
             parsedData.dice = parsedData.dice.concat(parsedDie);
+            
+                // creates a dice button in the stack and binds the REMOVE function to it.
+            $('<button />',{
+                type:'button',
+                class:'btn die dieRem btn-primary',
+                id: 'd'+parsedDie,
+                text: parsedDie,
+                click:function(){dicestrack_removeDie('d'+parsedDie);}
+                
+            }).appendTo('#dicestack');
+
         }
 
         // get modifiers, any format any size
@@ -186,10 +228,62 @@
             parsedData.modifiers = parsedData.modifiers.concat(parsedMod);
         }
 
+        // update dice stack with new buttons
+
+
+
         return parsedData;
     }
 
+    
+    // Called when the HTML element of a die is clicked
+    function dicestack_addDie(dieType){
+        logger.log('adding die ' + dieType);
+        divClientDiceText.value += '+' + dieType;
+        divClientDiceText.onkeyup(); // force parse
 
+    }
+    function dicestrack_removeDie(dieType){
+        console.log('removing die ' + dieType);
+        //let dp = new DicePool();
+        dicepool.RemoveDie(dieType);
+        divClientDiceText.value = '';
+        drawDiceStack();
+        
+        logger=  simplelogger('dicelient');
+    }
+
+    // clears the dicestack (visually) and draws new boetons.
+    function drawDiceStack(){
+        logger.log('Drawing new dice stack');
+        
+        // clear dice stack, then fill it up again.
+        $('#dicestack').empty();
+
+        // JS orders the dice from lowest to highsest.
+        // but it's nicer to have them reversed.
+        let dicepoolKeys = Object.keys(dicepool.pool);
+        dicepoolKeys = dicepoolKeys.reverse();
+
+        for(let k in (dicepoolKeys)){
+            let key = dicepoolKeys[k];
+            let dicestack = dicepool.pool[key];
+            logger.debug(`Creating dice for stack: ${dicestack}`);
+            
+            for(let i in dicestack){
+                let die = dicestack[i];
+                // create button code
+                $('<button />',{
+                    type:'button',
+                    class:'btn die dieRem btn-primary',
+                    id: 'd'+die,
+                    text: die,
+                    click:function(){dicestrack_removeDie('d'+die);}
+                    
+                }).appendTo('#dicestack');
+            }
+        }
+    }
 
     // constructs a string from given dice + modifiers
     function createParsedDiceMessage(dice, modifiers){
@@ -215,11 +309,42 @@
 
     // responds to keypresses, calls parseDiceString
     divClientDiceText.onkeyup = function(){
-        // handle change events
-        var dicetext=  divClientDiceText.value.replace(/\s/, '');
-        var parsedData = parseDiceString(dicetext);
-        divClientDiceTextParsePreview.innerHTML = createParsedDiceMessage(parsedData.dice, parsedData.modifiers);
         
+        let logger = new simplelogger('OnKeyUp');
+        // parses text field for dice / modifiers & faults
+        // the parseDicestring returns a dicepool & a list of data that was NOT parsed.
+        // the unparsezd data is checked for modifiers
+        // any remainders will mark the dicefield as 'invalid
+
+        var dicetext=  divClientDiceText.value.replace(/\s/, ''); // remove whitespace        
+        
+        // reads dice data and updates global: dicepool
+        var pd = dicepool.parseDiceString(dicetext); 
+        dicepool.setPool(pd.dicepool);
+
+        //logger.log(JSON.stringify(pd.dicepool));
+        logger.log(JSON.stringify(dicepool.pool));
+        let skippedData = pd.skipped;
+        logger.log('skipped data ' + JSON.stringify(skippedData ));
+
+        let modParseData = modifierpool.parseModString(skippedData);
+        
+        logger.log('Modifiers found in skipped data: ' + modParseData.modifiers);
+
+        modifierpool.setPool( modParseData.modifiers);
+        console.log('set modifierpool with data: ' + modParseData.modifiers);
+        skippedData = modParseData.skipped;
+        
+
+        drawDiceStack();
+
+        if(skippedData !== ""){
+            divClientDiceText.classList.add('is-invalid');
+        }
+        else{
+            divClientDiceText.classList.remove('is-invalid');
+        }
+       
         
     }
 
@@ -247,12 +372,16 @@
 
     var lastRoll = Date.now();
     var DICEREROLLTIME = 250;
-    var fn_rolldice = function(){
 
+
+    // Sends Dicepool to server
+    var fn_rolldice = function(){
+        // let logger = new simplelogger('FN_ROLLDICE');
+        console.log('rolling dice');
         // regex the diceroll input form
         // handle change events
-        var dicetext=  divClientDiceText.value.replace(/\s/, '');
-
+        let dicetext=  divClientDiceText.value.replace(/\s/, '');
+        
         if(dicetext === '') return;
 
         // prevent rerolling
@@ -263,16 +392,34 @@
         } 
 
         lastRoll = Date.now();
+
+        // create object to send to server:
+        // data format v1
+        // {dice:[20,20,10,10...], modifiers:[+1,-1]}
+        console.log('creating net object for dicepool ' + JSON.stringify(dicepool.pool));
+        let flattenedDice = dicepool.flatten();
+        console.log('Flattened dice list: ' + flattenedDice);
+        let mods = modifierpool.getPool();
+        console.log(modifierpool);
+        console.log('creating net object for modpool ' + JSON.stringify(mods));
+        let netObj = {dice:dicepool.flatten(), modifiers:mods}
         
-        var parsedData = parseDiceString(dicetext);
-        console.log('rolling dice');
+
+        var parsedData = parseDiceString_DEPR(dicetext);
+
+        parsedData = netObj;
+        
+        logger.log('Rolling dice ' + JSON.stringify(parsedData));
         socket.emit('rollDice', parsedData);
-        
         
 
         // clear field after roll
         var el = document.getElementById('divOptions-clearAfterRoll');
-        if(el.checked) divClientDiceText.value = "";
+        if(el.checked){
+            divClientDiceText.value = "";
+            dicepool.pool = {};
+            drawDiceStack();
+        } 
     }
 
 
@@ -377,10 +524,10 @@
             // todo: create stump HTML file for this
             let htmlcode = `<div id=${guid} class="media ${animationHtml}" style="animation-delay:${fancydelayAnimation}ms;">`;
             htmlcode    += '<a class="pull-left" href="#">';
-            htmlcode    += `<img class="media-object" src= ${imgname} width=40>`;
+            htmlcode    += `<img class="media-object" src= ${imgname} width=${SETTINGS.PLAYERLIST.portraitsize}>`;
             htmlcode    += '</a>';
-            htmlcode    += '<div class="media-body">';
-            htmlcode    += `<h4 class="media-heading" style="color:${color};">${username}</h4>`;
+            htmlcode    += '<div class="media-body" style="vertical-align: middle; padding:1em;">';
+            htmlcode    += `<h4 class="media-heading" style="color:${color}; ">${username}</h4>`;
             htmlcode    += '</div>';
 
             // divClientPlayerlist.innerHTML += '<div style="color:' +color+  ';">' + username + '</div>';
