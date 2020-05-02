@@ -35,6 +35,9 @@
 
     var divClientDiceRollForm = document.getElementById('divClient-RollForm');
 
+    let divDiceButtonsSubmit = document.getElementById('DiceButtonsSubmit');
+    let divDiceButtonsClear = document.getElementById('DiceButtonsClear');
+
     let dicepool = new DicePool();
     let modifierpool = new ModifierPool();
 
@@ -71,7 +74,7 @@
 
                 // switch from login div to client div
                 // divSign.style="display:None;";
-                divClient.style="display:inline-block;";
+                // divClient.style="display:inline-block;";
 
                 divSign.classList.add('animated');
                 divSign.classList.add('fadeOutUp');
@@ -81,12 +84,9 @@
                 divClient.classList.add('animated');
                 divClient.classList.add('faster');
                 divClient.classList.add('fadeInUp');
-                divClient.style="display:inline-block;"; 
-                
-
-
-
-                setTimeout( function(){divClientDiceText.focus();}, 50); // slight delay to prevant problems names
+                divClient.style +="display:inline-block;"; 
+                // slight delay to focussing on the dicefield, focussing breaks animations
+                setTimeout( function(){divClientDiceText.focus();}, 500); 
                 divClientDiceText.value = '';
             }
             else{
@@ -235,12 +235,31 @@
         return parsedData;
     }
 
+    divDiceButtonsSubmit.onclick = function(){
+        // check if fields are filled
+        let dice = dicepool.flatten();
+        if(dice.length > 0)
+            fn_rolldice();
+    }
+
+    divDiceButtonsClear.onclick= function(){
+        // clear dicestack and redraw
+        dicepool = new DicePool();
+        drawDiceStack();
+
+        // clear modifiers and redraw
+        modifierpool.pool = [0];
+        $('#dicestackmodifier').prop("value", 0);// = firstval;
+    };
     
     // Called when the HTML element of a die is clicked
     function dicestack_addDie(dieType){
         logger.log('adding die ' + dieType);
-        divClientDiceText.value += '+' + dieType;
-        divClientDiceText.onkeyup(); // force parse
+        
+        dicepool.AddDie(dieType);
+        drawDiceStack();
+        // divClientDiceText.value += '+' + dieType;
+        // divClientDiceText.onkeyup(); // force parse
 
     }
     function dicestrack_removeDie(dieType){
@@ -306,43 +325,48 @@
         return `Dice: (${dicemsg}), Modifiers: (${modifiersmsg})`;
     }
 
+    function incrementModifierValue(increment){
+        // check if shift is held ()
+        let firstval = modifierpool.pool[0];
+        firstval += increment;
 
-    // $("#dicestackmodifier-minus").click(function(){
-    //     alert('clickidy');
-    // });
-    
+        modifierpool.pool = [firstval];
+
+        if(firstval >= 0) firstval = '+' + firstval;
+
+        $('#dicestackmodifier').prop("value", firstval);// = firstval;
+        
+    }
+
+    function parseDiceClientText(dicetext){
+        
+        // dicetext = dicetext.replace(/\s/, ''); // remove spaces
+
+        let pd = dicepool.parseDiceString(dicetext); 
+        
+        let modParseData = modifierpool.parseModString(pd.skipped);
+
+        let skippedData = modParseData.skipped;
+        
+        let fnResult = {parseddice:pd.dicepool, parsedmods:modParseData.modifiers, skipped:skippedData};
+        
+        return fnResult;
+    }
+
+    function validateDiceClientText(){
+
+        let dicetext=  divClientDiceText.value.replace(/\s/, ''); // remove whitespace        
+        let pd = parseDiceClientText(dicetext);
+
+        if(pd.skipped !== '') return false;
+
+        return true;
+
+    }
     // responds to keypresses, calls parseDiceString
     divClientDiceText.onkeyup = function(){
-        
-        let logger = new simplelogger('OnKeyUp');
-        // parses text field for dice / modifiers & faults
-        // the parseDicestring returns a dicepool & a list of data that was NOT parsed.
-        // the unparsezd data is checked for modifiers
-        // any remainders will mark the dicefield as 'invalid
-
-        var dicetext=  divClientDiceText.value.replace(/\s/, ''); // remove whitespace        
-        
-        // reads dice data and updates global: dicepool
-        var pd = dicepool.parseDiceString(dicetext); 
-        dicepool.setPool(pd.dicepool);
-
-        //logger.log(JSON.stringify(pd.dicepool));
-        logger.log(JSON.stringify(dicepool.pool));
-        let skippedData = pd.skipped;
-        logger.log('skipped data ' + JSON.stringify(skippedData ));
-
-        let modParseData = modifierpool.parseModString(skippedData);
-        
-        logger.log('Modifiers found in skipped data: ' + modParseData.modifiers);
-
-        modifierpool.setPool( modParseData.modifiers);
-        console.log('set modifierpool with data: ' + modParseData.modifiers);
-        skippedData = modParseData.skipped;
-        
-
-        drawDiceStack();
-
-        if(skippedData !== ""){
+                
+        if(validateDiceClientText() === false){
             divClientDiceText.classList.add('is-invalid');
         }
         else{
@@ -380,13 +404,13 @@
 
     // Sends Dicepool to server
     var fn_rolldice = function(){
-        // let logger = new simplelogger('FN_ROLLDICE');
+        
         console.log('rolling dice');
         // regex the diceroll input form
         // handle change events
         let dicetext=  divClientDiceText.value.replace(/\s/, '');
         
-        if(dicetext === '') return;
+        //if(dicetext === '') return;
 
         // prevent rerolling
         let dTime = Date.now() - lastRoll;
@@ -409,9 +433,9 @@
         let netObj = {dice:dicepool.flatten(), modifiers:mods}
         
 
-        var parsedData = parseDiceString_DEPR(dicetext);
+        // var parsedData = parseDiceString_DEPR(dicetext);
 
-        parsedData = netObj;
+        let parsedData = netObj;
         
         logger.log('Rolling dice ' + JSON.stringify(parsedData));
         socket.emit('rollDice', parsedData);
@@ -428,17 +452,28 @@
 
 
 
+
     divClientDiceRollForm.onsubmit = function(e){
         e.preventDefault(); // IMPORTANT, this prevents HTML from refreshing the page.        
-        console.log("onsubmit");
-        var dicetext=  divClientDiceText.value;
+        
+        let dicetext=  divClientDiceText.value;
+        console.log(dicetext);
 
         if(dicetext !== ''){
             if(dicetext[0] === '/'){
                     fn_handleconsolecommand( dicetext.slice(1, dicetext.length));
             }
             else{
-                fn_rolldice();
+                if(validateDiceClientText()){
+                    
+                    let pr = parseDiceClientText(dicetext);
+                    console.log(JSON.stringify(pr));
+                    dicepool.pool = pr.parseddice;
+                    modifierpool.pool = pr.parsedmods;
+
+                    console.log(JSON.stringify(dicepool));
+                    fn_rolldice();
+                }
             }
             
         }
@@ -507,6 +542,7 @@
         for(var i in data){
             
             let animationHtml = 'animated fadeInRight';
+            animationHtml = '';
             
             let storedPlayerData = Playerslist[data[i].guid];
             if(storedPlayerData){

@@ -15,7 +15,7 @@
 <body>
 
 <div id='background'></div>
-<div id='diceclient' class="float-left container" style="width: 15cm; height: 100%;">
+<div id='diceclient' class="float-left container" style="position: absolute; width: 15cm; height: 100%;">
 
     <div id="divSign" class='FadeUpOnClick animated fadeIn anchor' style="position: absolute;">
         <h1>Log in</h1>
@@ -26,7 +26,7 @@
         </form>
         
     </div>
-    <div id='divClient' class="w-100 h-100 p-3" style="position:absolute; top: 0;display:none;">
+    <div id='divClient' class="w-100 h-100 p-3" style="position:absolute; top: 0; display:none; height: 100%;">
         
         <!-- <div id="divClient" style="display:none;"> -->
             <h1>Dice Roller</h1>
@@ -48,56 +48,81 @@
                 <!-- <h3>Dice Roller</h3> -->
                 <button type='button' class='btn-textleft btn-secondary btn btn-block ' data-toggle="collapse" data-target="#dicerollerframe"> <h3>Dice Roller</h3></button>
                 <div id="dicerollerframe" class="collapse show">
-                    <div id='diceroller_buttonframe'>
-                    <div id='dicerack' class="d-flex justify-content-between" style="padding: 5px;">
-                        <button type="button" id='d4' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d4')">4</button>
-                        <button type="button" id='d6' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d6')">6</button>
-                        <button type="button" id='d8' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d8')">8</button>
-                        <button type="button" id='d10' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d10')">10</button>
-                        <button type="button" id='d12' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d12')">12</button>
-                        <button type="button" id='d20' class="btn die dieAdd btn-primary"onclick="dicestack_addDie('d20')">20</button>            
-                        <button type="button" id='d100'class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d100')" >100</button>
-                    </div>
-                    <div class=" d-flex justify-content-center"> <div class="seperator"></div></div>
-                    <div id='dicestackcontainer'>
-                        <div id='dicestack' class="container" style="min-height: 4em; margin-bottom: 10px;">
+                <ul class='nav nav-tabs'>
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#diceroller_buttonframe">Dice</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#diceroller_formtab">Console</a>
+                      </li>
+                </ul>
+                <div class='tab-content'>
+                    <div id='diceroller_buttonframe' class="tab-pane fade active show">
+                        <div id='dicerack' class="d-flex justify-content-between" style="padding: 5px;">
+                            <button type="button" id='d4' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d4')">4</button>
+                            <button type="button" id='d6' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d6')">6</button>
+                            <button type="button" id='d8' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d8')">8</button>
+                            <button type="button" id='d10' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d10')">10</button>
+                            <button type="button" id='d12' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d12')">12</button>
+                            <button type="button" id='d20' class="btn die dieAdd btn-primary"onclick="dicestack_addDie('d20')">20</button>            
+                            <button type="button" id='d100'class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d100')" >100</button>
+                        </div>
+                        <div class=" d-flex justify-content-center"> 
+                            <div class="seperator"></div>
+                        </div>
+                        <div id='dicestackcontainer'>
+                            <div id='dicestack' class="container" style="min-height: 4em; margin-bottom: 10px;">
                             <!-- STACK -->
-                        </div>
-                    <div class=" d-flex justify-content-center"> <div class="seperator" ></div></div>
-                        <div id='dicestackmodcontainer' class="container p-0">
-                            <div class="input-group input-group-lg">
-                                <div class="input-group-prepend">                                    
-                                    <button class="btn btn-primary" style="font-size: x-large" type="button">-</button>
-                                </div>
-                                <input type="text" style="text-align: center;font-size: x-large;" id='dicestackmodifier' class="form-control" placeholder="0" >
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" style="font-size: x-large" type="button">+</button>
-                                </div>
                             </div>
+                            <div class=" d-flex justify-content-center"> <div class="seperator" ></div></div>
+                            <div id='dicestackmodcontainer' class="container p-0">
+                                <div class="input-group input-group-lg">
+                                    <div class="input-group-prepend">                                    
+                                        <button id='dicestackmodifier-minus' class="btn btn-primary" style="font-size: x-large" type="button" onclick="incrementModifierValue(-1);">-</button>
+                                    </div>
+                                    <input type="text" style="text-align: center;font-size: x-large;" id='dicestackmodifier' class="form-control " placeholder="0" readonly>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" style="font-size: x-large" type="button" onclick="incrementModifierValue(+1);">+</button>
+                                    </div>
+                                </div>
+                                <div class="container p-0">
+                                    <div class="input-group input-group-lg">
+                                        <button id='DiceButtonsSubmit' class="btn btn-secondary w-100 p-4" style="font-size: x-large" type="button">Roll!</button>
+                                        <button id='DiceButtonsClear' class="btn btn-secondary w-100 p-1" style="font-size: large" type="button">CLR</button>
+                                    </div>
+                                </div>
+                            </div>  
                         </div>
+                
+
                     </div>
+                    <div id='diceroller_formtab' class="tab-pane fade">
+                        <div id="divClient-dicetextParsePreview">Dice Preview</div>
+                        <div> 
+                            <form id="divClient-RollForm" class='input-group'>
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1">Die</span>    
+                                </div>
+                                <input id="divClient-dicetext" type="text" placeholder="1d20+10" class="form-control"></input>
+                                <input type="submit" value="Roll!" class="btn btn-primary">
+                            </form>
+                        </div>
                     </div>
                 </div>
+                </div>
+    
+
             </div>
-            <div id="divClient-dicetextParsePreview">Dice Preview</div>
-            <div style="display: grid; grid-column: auto; grid-template-columns: auto auto; height: 2em;">
-                <form id="divClient-RollForm" class='input-group'>
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">Die</span>    
-                    </div>
-                    <input id="divClient-dicetext" type="text" placeholder="1d20+10" class="form-control"></input>
-                    <input type="submit" value="Roll!" class="btn btn-primary">
-                </form>
-                <!-- <button id="divClient-Roll" style="height: 2em;">Roll!</button> -->
+            
+            <div id='dicelog'>
+                <button type='button' class='btn-textleft btn-secondary btn btn-block ' data-toggle="collapse" data-target="#dicelogframe"> <h3>Log</h3></button>                                
+                <div id='dicelogframe' class='collapse show'>
+                    <ul id="divClient-RollResults" class="list-unstyled" style="font-size: large;">
+                    <!-- This element is filled with items -->
+                    </ul>
+                </div>
             </div>
-            <br>
-            <div class='card'>
-                <ul id="divClient-RollResults" class="list-unstyled">
-                <!-- This element is filled with items -->
-                </ul>
-            </div>
-        <!-- </div> -->
-    </div>
+        </div>
 </div>
 
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>  -->

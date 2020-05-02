@@ -175,7 +175,7 @@ class DicePool{
 
 class ModifierPool{
     constructor(){
-        this.pool = [];
+        this.pool = [0];
     }
     parseModSegment(modstring){
         let fnResult= {data:'', succes:true, msg:''};

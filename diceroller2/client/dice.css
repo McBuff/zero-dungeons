@@ -119,3 +119,15 @@ button.dieRem:hover{
     margin-bottom: 5px;
     margin-top: 5px;
 }
+
+#DiceButtonsSubmit:hover{
+
+    background-color: #40b86a !important;
+    color: white;
+    
+}
+
+#DiceButtonsClear:hover{
+    background-color: tomato !important;
+    color: white;
+}
