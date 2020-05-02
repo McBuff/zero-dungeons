@@ -3,22 +3,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <!-- <link rel='stylesheet' href="https://bootswatch.com/4/flatly/bootstrap.min.css" type="text/css"> -->
-    <link rel='stylesheet' href="https://bootswatch.com/4/darkly/bootstrap.min.css" type="text/css">
+    <link rel='stylesheet' href="https://bootswatch.com/4/lux/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
-    <!-- <script
-			  src="https://code.jquery.com/jquery-3.5.0.min.js"
-			  integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
-              crossorigin="anonymous"></script> -->
-              
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cantarell:ital@0;1&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap" rel="stylesheet"> 
     <link rel='stylesheet' href='./dice.css'>
     
     
 </head>
 <body>
-<div class="float-left">
+
+<div id='background'></div>
+<div id='diceclient' class="float-left container" style="width: 15cm; height: 100%;">
 
     <div id="divSign" class='FadeUpOnClick animated fadeIn anchor' style="position: absolute;">
-        <h2>Log in</h2>
+        <h1>Log in</h1>
         <form id="divSign-logindataform" class='input-group mb-3' >
             <input id="divSign-username" type="text" autofocus placeholder="User name" class="form-control"></input>
             <input id="divSign-password" type="password" placeholder="Password" class="form-control"></input>
@@ -26,42 +26,59 @@
         </form>
         
     </div>
-    <div class="anchor" style="position:absolute; top: 0;">
-        <div id="divClient" style="display:none;">
-            <h3 >Options</h3>
-            <ul style="list-style-type: none; padding-left: 0px;">
-                <li><input id="divOptions-playsounds" type="checkbox"></input>Play sounds </li>
-                <li><input id="divOptions-clearAfterRoll" type="checkbox"></input>Clear after Roll</li>
-            </ul>
-            <h3>Players</h3>
-            <div id="divClient-playerlist" style="font-weight: bolder;" class='card'></div>
-            
-            <h3>Dice Roller</h3>
-            <div id='dicerack' >
-                <button type="button" id='d4' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d4')">4</button>
-                <button type="button" id='d6' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d6')">6</button>
-                <button type="button" id='d8' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d8')">8</button>
-                <button type="button" id='d10' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d10')">10</button>
-                <button type="button" id='d12' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d12')">12</button>
-                <button type="button" id='d20' class="btn die dieAdd btn-primary"onclick="dicestack_addDie('d20')">20</button>            
-                <button type="button" id='d100'class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d100')" >100</button>
+    <div id='divClient' class="w-100 h-100 p-3" style="position:absolute; top: 0;display:none;">
+        
+        <!-- <div id="divClient" style="display:none;"> -->
+            <h1>Dice Roller</h1>
+            <div id='options'>
+                <button type='button' class='btn-textleft btn-secondary btn btn-block ' data-toggle="collapse" data-target="#playerOptions"> <h3>Options</h3></button>                                
+                <ul id ='playerOptions' class="list-group collapse in" style="list-style-type: none; padding-left: 0px;">
+                    <li><input class="" id="divOptions-playsounds" type="checkbox"></input>Play sounds </li>
+                    <li><input class='' id="divOptions-clearAfterRoll" type="checkbox"></input>Clear after Roll</li>
+                </ul>
             </div>
-            <div id='dicestackcontainer' class="row">
-                <div id='dicestack' class="col-md-9">
-                    <!-- STACK -->
-                </div>
-                <div id='dicestackmodcontainer' class="col-md-1 input-group ">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Modifier</span>
-                        <input type="text" id='dicestackmodifier' class="" placeholder="+0">
-                        <div class="input-group-append" id="button-addon4">
-                            <button class="btn btn-secondary" type="button">-</button>
-                            <button class="btn btn-secondary" type="button">+</button>
-                          </div>
+            <div id='playerlist'>
+                <button type='button' class='btn-textleft btn-secondary btn btn-block ' data-toggle="collapse" data-target="#divClient-playerlist"> <h3>Players</h3></button>
+
+            
+                <!-- <h3>Players</h3> -->
+                <div id="divClient-playerlist" style="font-weight: bolder;" class='collapse show' ></div>
+            </div>
+            <div id='diceroller'>
+                <!-- <h3>Dice Roller</h3> -->
+                <button type='button' class='btn-textleft btn-secondary btn btn-block ' data-toggle="collapse" data-target="#dicerollerframe"> <h3>Dice Roller</h3></button>
+                <div id="dicerollerframe" class="collapse show">
+                    <div id='diceroller_buttonframe'>
+                    <div id='dicerack' class="d-flex justify-content-between" style="padding: 5px;">
+                        <button type="button" id='d4' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d4')">4</button>
+                        <button type="button" id='d6' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d6')">6</button>
+                        <button type="button" id='d8' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d8')">8</button>
+                        <button type="button" id='d10' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d10')">10</button>
+                        <button type="button" id='d12' class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d12')">12</button>
+                        <button type="button" id='d20' class="btn die dieAdd btn-primary"onclick="dicestack_addDie('d20')">20</button>            
+                        <button type="button" id='d100'class="btn die dieAdd btn-primary" onclick="dicestack_addDie('d100')" >100</button>
+                    </div>
+                    <div class=" d-flex justify-content-center"> <div class="seperator"></div></div>
+                    <div id='dicestackcontainer'>
+                        <div id='dicestack' class="container" style="min-height: 4em; margin-bottom: 10px;">
+                            <!-- STACK -->
+                        </div>
+                    <div class=" d-flex justify-content-center"> <div class="seperator" ></div></div>
+                        <div id='dicestackmodcontainer' class="container p-0">
+                            <div class="input-group input-group-lg">
+                                <div class="input-group-prepend">                                    
+                                    <button class="btn btn-primary" style="font-size: x-large" type="button">-</button>
+                                </div>
+                                <input type="text" style="text-align: center;font-size: x-large;" id='dicestackmodifier' class="form-control" placeholder="0" >
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" style="font-size: x-large" type="button">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
-
             <div id="divClient-dicetextParsePreview">Dice Preview</div>
             <div style="display: grid; grid-column: auto; grid-template-columns: auto auto; height: 2em;">
                 <form id="divClient-RollForm" class='input-group'>
@@ -79,9 +96,10 @@
                 <!-- This element is filled with items -->
                 </ul>
             </div>
-        </div>
+        <!-- </div> -->
     </div>
 </div>
+
 <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>  -->
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src='./simplelogger.js'></script>

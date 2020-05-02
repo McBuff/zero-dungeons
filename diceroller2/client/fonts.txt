@@ -1,0 +1,14 @@
+H1: Hammersmith one
+<link href="https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap" rel="stylesheet"> 
+
+font-family: 'Hammersmith One', sans-serif;
+
+H2:Questrial
+<link href="https://fonts.googleapis.com/css2?family=Questrial&display=swap" rel="stylesheet"> 
+
+font-family: 'Questrial', sans-serif;
+
+
+ Body: Caneterall
+  <link href="https://fonts.googleapis.com/css2?family=Cantarell:ital@0;1&display=swap" rel="stylesheet"> 
+  font-family: 'Cantarell', sans-serif;

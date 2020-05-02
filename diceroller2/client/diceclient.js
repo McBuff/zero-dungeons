@@ -307,6 +307,10 @@
     }
 
 
+    // $("#dicestackmodifier-minus").click(function(){
+    //     alert('clickidy');
+    // });
+    
     // responds to keypresses, calls parseDiceString
     divClientDiceText.onkeyup = function(){
         
