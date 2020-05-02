@@ -4,7 +4,7 @@
 
     SETTINGS = {}
     SETTINGS.DEBUG = {debugmode:true,autologin:true}
-    SETTINGS.PLAYERLIST = {portraitsize:'96px'}
+    SETTINGS.PLAYERLIST = {portraitsize:'60px'}
     //PLAYERLISTSETTINGS = {portraitsize:'60px'}
     
     var logger = new simplelogger('DiceClientMain');
