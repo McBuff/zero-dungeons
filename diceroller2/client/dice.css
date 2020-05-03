@@ -1,133 +1,125 @@
-
-button.die{
-    margin: 3px;
-    width: 50px;
-    height: 50px;
-    padding: 0%;
-    animation-duration: 1s;
-    transition: all .1s ease-in-out;
-    text-align: center;
-    line-height: 1.5em;    
-    font-size: 1.5em;
+button.die {
+	margin: 3px;
+	width: 50px;
+	height: 50px;
+	padding: 0%;
+	animation-duration: 1s;
+	transition: all .1s ease-in-out;
+	text-align: center;
+	line-height: 1.5em;
+	font-size: 1.5em;
 }
-button.dieAdd{
-    background-color: gray;
-    width: 1.5cm;
-    height: 1.5cm;
-    opacity: .8;
-    /* -webkit-text-stroke-width: 1px;
+button.dieAdd {
+	background-color: gray;
+	width: 1.5cm;
+	height: 1.5cm;
+	opacity: .8;
+	/* -webkit-text-stroke-width: 1px;
     -webkit-text-stroke-color: gray; */
-    
 }
-button.dieAdd:hover{
-    transform:rotate(20deg)scale(1.5);
-    /* background-color: seagreen !important; */
-    border-color: limegreen;
-    text-decoration-thickness: bold;
-    
+button.dieAdd:hover {
+	transform: rotate(20deg)scale(1.5);
+	/* background-color: seagreen !important; */
+	border-color: limegreen;
+	text-decoration-thickness: bold;
 }
 
-
-#dicerack{
-    /* height: 5em; */
-    border-color: black;
-    /* border-style: dashed; */
-    /* border-width: 1px; */
-    background-color: #dddddd;
+#dicerack {
+	/* height: 5em; */
+	border-color: black;
+	/* border-style: dashed; */
+	/* border-width: 1px; */
+	background-color: #dddddd;
 }
-#diceroller_buttonframe{
-    background-color: #dddddd;
+#diceroller_buttonframe {
+	background-color: #dddddd;
 }
 /* https://coolors.co/f9c80e-f86624-ea3546-662e9b-43bccd-7cb518-29335c */
-#d4{
-    clip-path: polygon(49% 12%, 9% 87%, 90% 86%);
-    background-color: #F9C80E;
+#d4 {
+	clip-path: polygon(49% 12%, 9% 87%, 90% 86%);
+	background-color: #f9c80e;
 }
-#d6{
-    clip-path: polygon(8% 8%, 92% 8%, 92% 92%, 8% 92%);
-    background-color: #F86624;
+#d6 {
+	clip-path: polygon(8% 8%, 92% 8%, 92% 92%, 8% 92%);
+	background-color: #f86624;
 }
-#d8{
-    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-    background-color: #EA3546;
+#d8 {
+	clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+	background-color: #ea3546;
 }
-#d10{
-    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-    background-color: #662E9B;
-}
-
-#d12{
-    /* clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); */
-    clip-path: polygon(50% 0%, 95% 24%, 98% 75%, 50% 100%, 2% 75%, 6% 24%);
-    background-color: #43BCCD;
+#d10 {
+	clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+	background-color: #662e9b;
 }
 
-#d20{
-    
-    /* clip-path: polygon(50% 0%, 80% 10%, 100% 35%, 100% 70%, 80% 90%, 50% 100%, 20% 90%, 0% 70%, 0% 35%, 20% 10%); */
-    clip-path: polygon(50% 0%, 83% 12%, 100% 43%, 94% 78%, 68% 100%, 32% 100%, 6% 78%, 0% 43%, 17% 12%);
-    background-color: #7CB518;
+#d12 {
+	/* clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); */
+	clip-path: polygon(50% 0%, 95% 24%, 98% 75%, 50% 100%, 2% 75%, 6% 24%);
+	background-color: #43bccd;
 }
 
-#d100{
-    background-color: #29335C;
+#d20 {
+	/* clip-path: polygon(50% 0%, 80% 10%, 100% 35%, 100% 70%, 80% 90%, 50% 100%, 20% 90%, 0% 70%, 0% 35%, 20% 10%); */
+	clip-path: polygon(50% 0%, 83% 12%, 100% 43%, 94% 78%, 68% 100%, 32% 100%, 6% 78%, 0% 43%, 17% 12%);
+	background-color: #7cb518;
 }
 
-button.dieRem:hover{
-    transform:rotate(-10deg)scale(.8);
-    background-color: tomato !important;
-    border-color: tomato;
-    text-decoration-thickness: bold;
-    
+#d100 {
+	background-color: #29335c;
 }
 
-#dicestackmodifier{
-    width: 3em;
-}
-#diceclient{
-    background-color: whitesmoke;
-    opacity: 1;
-    /* display: inline-block; */
-    min-width: 14cm;   
-    height: 100%;
-    box-shadow: black;
-}
-#background{
-    background-image: url('./img/BG.jpg');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center;
-    height: 100%;
-    width: 100%;
-    opacity: 0.2;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: -1;
+button.dieRem:hover {
+	transform: rotate(-10deg)scale(.8);
+	background-color: tomato !important;
+	border-color: tomato;
+	text-decoration-thickness: bold;
 }
 
-.btn-textleft{
-    text-align: left;
-    padding-left: 0;
+#dicestackmodifier {
+	width: 3em;
+}
+#diceclient {
+	background-color: whitesmoke;
+	opacity: 1;
+	/* display: inline-block; */
+	min-width: 14cm;
+	height: 100%;
+	box-shadow: black;
+}
+#background {
+	background-image: url('./img/BG.jpg');
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	height: 100%;
+	width: 100%;
+	opacity: 0.2;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: -1;
 }
 
-.seperator{
-    background-color: #cccccc; 
-    display: block; 
-    height: 1px; 
-    width: 90%;
-    margin-bottom: 5px;
-    margin-top: 5px;
+.btn-textleft {
+	text-align: left;
+	padding-left: 0;
 }
 
-#DiceButtonsSubmit:hover{
-
-    background-color: #40b86a !important;
-    color: white;
-    
+.seperator {
+	background-color: #cccccc;
+	display: block;
+	height: 1px;
+	width: 90%;
+	margin-bottom: 5px;
+	margin-top: 5px;
 }
 
-#DiceButtonsClear:hover{
-    background-color: tomato !important;
-    color: white;
+#DiceButtonsSubmit:hover {
+	background-color: #40b86a !important;
+	color: white;
+}
+
+#DiceButtonsClear:hover {
+	background-color: tomato !important;
+	color: white;
 }
