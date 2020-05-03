@@ -21,4 +21,6 @@ You can open the diceroller by navigating to:
 - Show room identifier in room
 - join room through link
 - Better PW implementation ( timed retries  + encryption + salting  + anything else required these days).
+- Player color picker
+- Player Portrait picker
 - FIX player color bug.
