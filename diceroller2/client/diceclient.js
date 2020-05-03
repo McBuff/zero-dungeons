@@ -1,7 +1,9 @@
-var socket = io();
+var socket = io('/ns-diceroller');
+
+// const dc_socket = io('/ns-diceroller');
 
 SETTINGS = {};
-SETTINGS.DEBUG = { debugmode: true, autologin: true };
+SETTINGS.DEBUG = { debugmode: true, autologin: false };
 SETTINGS.PLAYERLIST = { portraitsize: '60px' };
 //PLAYERLISTSETTINGS = {portraitsize:'60px'}
 
@@ -63,9 +65,11 @@ function submitSignIn() {
 	// validate forms , then log in
 	if (divSignUsername.value.length > SETTINGS.DEBUG.autologin) {
 		console.debug('Submitting login data');
+		let roomname = document.getElementById('divSign-roomname').value;
 		socket.emit('clientSignIn', {
 			username: divSignUsername.value,
-			password: divSignPassword.value
+			password: divSignPassword.value,
+			room: roomname
 		});
 	}
 }

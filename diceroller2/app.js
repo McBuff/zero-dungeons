@@ -1,56 +1,4 @@
-app.get('/audio/oof.mp3', function(req, res) {
-	res.sendFile(__dirname + '/client/audio/oof.mp3');
-});
-app.get('/audio/tada.mp3', function(req, res) {
-	res.sendFile(__dirname + '/client/audio/tada.mp3');
-});
-
-app.get('/audio/diceroll_1_1.mp3', function(req, res) {
-	res.sendFile(__dirname + '/client/audio/diceroll_1_1.mp3');
-});
-
-app.get('/audio/diceroll_1_2.mp3', function(req, res) {
-	res.sendFile(__dirname + '/client/audio/diceroll_1_2.mp3');
-});
-
-app.get('/audio/diceroll_1_3.mp3', function(req, res) {
-	res.sendFile(__dirname + '/client/audio/diceroll_1_3.mp3');
-});
-app.get('/audio/diceroll_4_1.mp3', function(req, res) {
-	res.sendFile(__dirname + '/client/audio/diceroll_4_1.mp3');
-});
-app.get('/audio/diceroll_4_2.mp3', function(req, res) {
-	res.sendFile(__dirname + '/client/audio/diceroll_4_2.mp3');
-});
-
-app.get('/diceroller/img/:im', function(req, res) {
-	// if user requests ANY image, send it, unless it doesn't exist, then send placeholder.
-	console.log('user requested image: ' + req.params.im);
-	// check if file exists, otherwis
-	const fs = require('fs');
-
-	let _filepath = __dirname + '/client/img/' + req.params.im;
-	if (fs.existsSync(_filepath) === false) {
-		console.debug('User requested an image that does not exists, sending placeholder.png');
-		_filepath = __dirname + '/client/img/' + 'placeholder.png';
-	}
-	res.sendFile(_filepath);
-});
-
-app.get('/diceroller/dice.css', function(req, res) {
-	console.log('client requested dice.css');
-	res.sendFile(__dirname + '/client/dice.css');
-});
-app.get('/diceroller/simplelogger.js', function(req, res) {
-	console.log('client requested js: simplelogger.js');
-	res.sendFile(__dirname + '/client/simplelogger.js');
-});
-
-app.get('/diceroller/diceparser.js', function(req, res) {
-	console.log('client requested js: diceparser.js');
-	res.sendFile(__dirname + '/client/diceparser.js');
-});
-
+LOCATIONS['diceclientroot'] = __dirname;
 // app.use('/client',express.static(__dirname + '/client'));
 
 // serv.listen(PORT);
@@ -58,10 +6,9 @@ app.get('/diceroller/diceparser.js', function(req, res) {
 require('better-logging')(console);
 console.log('DiceRollerApp Loading...');
 var io = require('socket.io')(serv, {});
-//io = io.of('namspace');
-//io = io.sockets;
 
-//var io = require('socket.io')(serv,{});
+// All http requests are declared in dr_expressrequests
+require('./server/dr_expressrequests');
 
 SOCKETS = {};
 
@@ -72,7 +19,7 @@ USERS = {
 	Dimur: 'dnd'
 };
 
-USERCOLORS = [ 'Brown', 'CornflowerBlue', 'Chocolate', 'DarkGreen', 'Indigo', '#ffffff' ];
+USERCOLORS = [ 'Brown', 'CornflowerBlue', 'Chocolate', 'DarkGreen', 'Indigo', '#00806c' ];
 
 DEBUGPWD = 'dnd';
 LOGINSETTINGS = { mode: 'FREEROOM', password: 'DND' };
@@ -87,7 +34,6 @@ function generateGUID() {
 		sGuid += Math.floor(Math.random() * 0xf).toString(0xf);
 	}
 	return sGuid;
-	//comment block
 }
 
 function pullColor() {
@@ -117,17 +63,18 @@ Player.onDisconnect = function(socket) {
 	delete Player.list[socket.guid];
 };
 
-var updateClientPlayerlists = function() {
+var updateClientPlayerlists = function(roomname) {
 	playernames = [];
 
 	for (var i in Player.list) {
 		var player = Player.list[i];
-		playernames.push({ username: player.username, color: player.color, guid: player.socket.guid });
+		if (player.socket.roomname === roomname)
+			playernames.push({ username: player.username, color: player.color, guid: player.socket.guid });
 	}
 	console.log('sending player list to players');
 	for (var i in SOCKETS) {
 		var socket = SOCKETS[i];
-		socket.emit('setPlayerList', playernames);
+		socket.in(roomname).emit('setPlayerList', playernames);
 	}
 };
 
@@ -149,14 +96,26 @@ var authenticateUser = function(data, cb) {
 	}
 };
 
-//io.sockets.on('connection', function(socket){
-io.sockets.on('connection', function(socket) {
+// all 'diceroller app' messages should go through namespace '/ns-diceroller'
+// sc_socket holds this namespace' socket.
+let dc_namespace = '/ns-diceroller';
+const dc_socket = io.of(dc_namespace);
+
+// dc_socket.on('connection', function(socket) {
+// 	console.log('got a sign in through namespace');
+// });
+
+//Main logic
+// io.sockets.on('connection', function(socket) {
+dc_socket.on('connection', function(socket) {
 	//console.log('socket connection');
 
+	socket.roomname = '';
 	// handle user login
 
 	socket.on('clientSignIn', function(data) {
 		console.log('user: ' + data.username + ' is attempting to log in.');
+		if (data.room) console.log(`user: ${data.username} requests to join room: ${data.room}`);
 
 		authenticateUser(data, function(res) {
 			if (res.result === true) {
@@ -174,8 +133,13 @@ io.sockets.on('connection', function(socket) {
 
 				socket.emit('transferDiceLog', { log: DICELOG.toString() });
 
+				// player joins desired room
+				roomname = data.room;
+				socket.roomname = roomname;
+				socket.join(roomname);
+
 				// Send all players an updated player list
-				updateClientPlayerlists();
+				updateClientPlayerlists(roomname);
 
 				socket.emit('clientSignInResponse', { succes: true });
 			} else {
@@ -188,7 +152,7 @@ io.sockets.on('connection', function(socket) {
 	socket.on('disconnect', function() {
 		delete SOCKETS[socket.guid];
 		Player.onDisconnect(socket);
-		updateClientPlayerlists();
+		updateClientPlayerlists(socket.roomname);
 	});
 
 	// if socket is NOT in sockets list, ignore rest of functions?
@@ -202,6 +166,7 @@ io.sockets.on('connection', function(socket) {
 	};
 
 	socket.on('rollDice', function(data) {
+		console.log('rolling dice');
 		// data format v1
 		// {dice:[20,20,10,10...], modifiers:[+1,-1]}
 		let player = Player.list[socket.guid]; // player who called the roll
@@ -217,7 +182,7 @@ io.sockets.on('connection', function(socket) {
 		// roll every die seperatly and produce a string with die+die+die+
 		for (var i in data.dice) {
 			let die = data.dice[i];
-			console.log('rolling d' + die);
+			// console.log('rolling d' + die);
 			let result = Math.floor(Math.random() * die) + 1;
 
 			// add dice roll to total dice score
@@ -231,7 +196,7 @@ io.sockets.on('connection', function(socket) {
 				if (result === 20) critData.critType = 'HIT';
 				else critData.critType = 'MISS';
 
-				result = '<b style="color:#ff0000;">' + result + '</b>';
+				result = '<b class="crit" style="color:#ff0000;">' + result + '</b>';
 				critData.didCrit = true;
 			}
 
@@ -273,7 +238,9 @@ io.sockets.on('connection', function(socket) {
 		data = { html: html, critData: critData, numDice: numdice };
 		for (var i in SOCKETS) {
 			var s = SOCKETS[i];
-			s.emit('addDiceRollResult', data);
+			// s.emit('addDiceRollResult', data);
+			console.log('sending diceroll to ' + socket.roomname);
+			s.in(socket.roomname).emit('addDiceRollResult', data);
 		}
 
 		// finally, add dice to the TOP of the log, ( for late joiners )
@@ -294,7 +261,8 @@ io.sockets.on('connection', function(socket) {
 
 			for (var i in SOCKETS) {
 				var psocket = SOCKETS[i];
-				psocket.emit('transferDiceLog', { log: DICELOG.toString() });
+				psocket.in(socket.roomname).emit('transferDiceLog', { log: DICELOG.toString() });
+				// psocket.emit('transferDiceLog', { log: DICELOG.toString() });
 			}
 
 			return;
@@ -304,7 +272,7 @@ io.sockets.on('connection', function(socket) {
 			console.log('changing player col ' + data.args);
 			let p = Player.list[socket.guid];
 			p.color = data.args;
-			updateClientPlayerlists();
+			updateClientPlayerlists(socket.roomname);
 		}
 	});
 });
