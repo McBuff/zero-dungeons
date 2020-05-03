@@ -24,3 +24,5 @@ You can open the diceroller by navigating to:
 - Player color picker
 - Player Portrait picker
 - FIX player color bug.
+- Keep player connected on refresh
+- Logout button
