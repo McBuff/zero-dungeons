@@ -15,4 +15,9 @@ You can open the diceroller by navigating to:
 
 
 ## Diceroller
-
+### Todo:
+- Seperate dicelogs -> room
+- Get a database going
+- Show room identifier in room
+- join room through link
+- Better PW implementation ( timed retries  + encryption + salting  + anything else required these days).
