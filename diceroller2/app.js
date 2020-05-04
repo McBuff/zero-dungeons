@@ -71,11 +71,12 @@ var updateClientPlayerlists = function(roomname) {
 		if (player.socket.roomname === roomname)
 			playernames.push({ username: player.username, color: player.color, guid: player.socket.guid });
 	}
-	console.log('sending player list to players');
-	for (var i in SOCKETS) {
-		var socket = SOCKETS[i];
-		socket.in(roomname).emit('setPlayerList', playernames);
-	}
+	console.log('sending player list to players in room: ' + roomname);
+	// for (var i in SOCKETS) {
+	// 	var socket = SOCKETS[i];
+	// 	socket.in(roomname).emit('setPlayerList', playernames);
+	// }
+	dc_socket.in(roomname).emit('setPlayerList', playernames);
 };
 
 Player.list = {};
@@ -134,12 +135,14 @@ dc_socket.on('connection', function(socket) {
 				socket.emit('transferDiceLog', { log: DICELOG.toString() });
 
 				// player joins desired room
-				roomname = data.room;
-				socket.roomname = roomname;
-				socket.join(roomname);
+
+				socket.roomname = data.room;
+				socket.join(socket.roomname);
+
+				console.log('socket roomname: ' + socket.roomname);
 
 				// Send all players an updated player list
-				updateClientPlayerlists(roomname);
+				updateClientPlayerlists(socket.roomname);
 
 				socket.emit('clientSignInResponse', { succes: true });
 			} else {
@@ -196,7 +199,7 @@ dc_socket.on('connection', function(socket) {
 				if (result === 20) critData.critType = 'HIT';
 				else critData.critType = 'MISS';
 
-				result = '<b class="crit" style="color:#ff0000;">' + result + '</b>';
+				result = '<b class="crit">' + result + '</b>';
 				critData.didCrit = true;
 			}
 
@@ -217,7 +220,7 @@ dc_socket.on('connection', function(socket) {
 			dicemodifiersLogString += sign + mod;
 		}
 		if (dicemodifiersLogString === '') dicemodifiersLogString = '0';
-		msg = `<b>${dicetotal}</b> -> ${diceresults} (${diceused}) + (${dicemodifiersLogString})`;
+		msg = `<b>${dicetotal}</b> <- ${diceresults} (${diceused}) + (${dicemodifiersLogString})`;
 
 		// construct HTML code for dice log;
 		let color = player.color;
@@ -236,12 +239,13 @@ dc_socket.on('connection', function(socket) {
 		let numdice = data.dice.length;
 		console.log(numdice);
 		data = { html: html, critData: critData, numDice: numdice };
-		for (var i in SOCKETS) {
-			var s = SOCKETS[i];
-			// s.emit('addDiceRollResult', data);
-			console.log('sending diceroll to ' + socket.roomname);
-			s.in(socket.roomname).emit('addDiceRollResult', data);
-		}
+		// for (var i in SOCKETS) {
+		// 	let s = SOCKETS[i];
+		// 	// s.emit('addDiceRollResult', data);
+		// 	console.log('sending diceroll to ' + socket.roomname);
+
+		dc_socket.in(socket.roomname).emit('addDiceRollResult', data);
+		// }
 
 		// finally, add dice to the TOP of the log, ( for late joiners )
 		//DICELOG.push(html);

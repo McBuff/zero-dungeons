@@ -114,6 +114,7 @@ socket.on('clientSignInResponse', function(res) {
 
 /// converts single die texts like '+3d20' into arrays of numbers [20,20,20]
 function parseDie(diestr) {
+	console.warn('DEPRICATED: parseDie');
 	var result = [];
 	var sign = 1; // 1  / -1
 	var multiplier = 1;
@@ -157,6 +158,7 @@ function parseDie(diestr) {
 
 /// converts single die mod text like '+150' into a signed number 150
 function parseDieModifier(modifierstr) {
+	console.warn('DEPRICATED: parseDieModifier');
 	let result = 0;
 	let sign = 1;
 	let modifier = 0;
@@ -471,7 +473,9 @@ socket.on('setPlayerList', function(data) {
 	console.log('stored player data:');
 	console.log(Playerslist);
 
-	// List and delete players that have left
+	console.log('receiving new playerlist');
+
+	// handle players that have left, remove effects Etc
 	for (var i in Playerslist) {
 		let player = Playerslist[i];
 		let playerActive = false;
@@ -513,19 +517,28 @@ socket.on('setPlayerList', function(data) {
 		}
 	}
 
-	// List players that have been added
-
 	// list players that have been updated
-	//divClientPlayerlist.innerHTML = '';
 	let fancydelayAnimation = 0;
 	for (var i in data) {
-		let animationHtml = 'animated fadeInRight';
-		animationHtml = '';
+		let animationHtml = 'fadeInRight';
+		// animationHtml = '';
 
 		let storedPlayerData = Playerslist[data[i].guid];
 		if (storedPlayerData) {
-			console.log(`${storedPlayerData.username} is already in playerlist`);
-			playerHtmlElement = document.getElementById(storedPlayerData.guid).classList.remove('animated');
+			console.log(`${storedPlayerData.username} is already in playerlist with guid: ${storedPlayerData.guid}`);
+			let playerHtmlElement = document.getElementById(storedPlayerData.guid);
+			let jqobject = $('#' + storedPlayerData.guid);
+			console.log('Found html element for player' + JSON.stringify(playerHtmlElement));
+			console.log('Found html json for player' + JSON.stringify(jqobject));
+			playerHtmlElement.classList.remove('animated');
+
+			let childNodes = playerHtmlElement.childNodes;
+			console.log('found childnodes ' + JSON.stringify(childNodes));
+			let playerNameNode = childNodes[1].childNodes[0]; // TODO: find better way to get player color
+			playerNameNode.style.color = data[i].color;
+			console.log(playerNameNode.classList);
+			// update color / portrait
+
 			Playerslist[data[i].guid] = data[i];
 			//animationHtml = '';
 			continue;
@@ -534,21 +547,33 @@ socket.on('setPlayerList', function(data) {
 		Playerslist[data[i].guid] = data[i];
 
 		var username = data[i].username;
-		var guid = data[i].guid;
+		let guid = data[i].guid;
 		var color = data[i].color;
 		let imgname = `./img/${username}.png`;
 
+		console.log('generating player HTML code');
 		// todo: create stump HTML file for this
-		let htmlcode = `<div id=${guid} class="media ${animationHtml}" style="animation-delay:${fancydelayAnimation}ms;">`;
-		htmlcode += '<a class="pull-left" href="#">';
+		// let htmlcode = `<div id='${guid}' class="media ${animationHtml}" style="animation-delay:${fancydelayAnimation}ms;">`;
+		let htmlcode = '';
+		htmlcode = '<a class="pull-left" href="#">';
 		htmlcode += `<img class="media-object" src= ${imgname} width=${SETTINGS.PLAYERLIST.portraitsize}>`;
 		htmlcode += '</a>';
 		htmlcode += '<div class="media-body" style="vertical-align: middle; padding:1em;">';
 		htmlcode += `<h4 class="media-heading" style="color:${color}; ">${username}</h4>`;
-		htmlcode += '</div>';
+		// htmlcode += '</div>';
 
 		// divClientPlayerlist.innerHTML += '<div style="color:' +color+  ';">' + username + '</div>';
-		divClientPlayerlist.innerHTML += htmlcode;
+		// divClientPlayerlist.innerHTML += htmlcode;
+		console.log('generating player html div element');
+		let div = document.createElement('div');
+		div.id = guid;
+		div.classList.add('media');
+		div.classList.add('animated');
+		div.classList.add(animationHtml);
+		div.style = `animation-delay:${fancydelayAnimation}ms`;
+		div.innerHTML = htmlcode;
+
+		divClientPlayerlist.appendChild(div);
 	}
 });
 
@@ -557,7 +582,7 @@ socket.on('addDiceRollResult', function(data) {
 	// add dice result on top of tray
 	// currently server decides HTML coding
 	divClientRollResults.innerHTML = data.html + divClientRollResults.innerHTML;
-
+	console.log('received diceroll from server');
 	// play sounds
 	if (divOptionsPlayAudio.checked) {
 		var sfxfile = 'diceroll_';

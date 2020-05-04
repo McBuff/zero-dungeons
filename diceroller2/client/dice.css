@@ -123,3 +123,9 @@ button.dieRem:hover {
 	background-color: tomato !important;
 	color: white;
 }
+
+.crit {
+	color: blue;
+	font-size: 120% !important;
+	font-weight: bolder !important;
+}
