@@ -7,6 +7,9 @@ require('better-logging')(console);
 console.log('DiceRollerApp Loading...');
 var io = require('socket.io')(serv, {});
 
+const uuidv4 = require('uuid').v4;
+// import { v4 as uuidv4 } from 'uuid';
+
 // All http requests are declared in dr_expressrequests
 require('./server/dr_expressrequests');
 
@@ -50,12 +53,13 @@ var Player = function(socket) {
 	var self = {
 		color: pullColor(),
 		socket: socket,
-		username: socket.username
+		username: socket.username,
+		userguid: uuidv4()
 	};
 
 	//add self to players list
 	Player.list[socket.guid] = self;
-	console.debug('Created player with username ' + self.username);
+	console.log('Created player with username ' + self.username + ' and GUID ' + self.userguid);
 
 	return self;
 };
@@ -116,6 +120,31 @@ dc_socket.on('connection', function(socket) {
 
 	socket.roomname = '';
 	// handle user login
+	async function transferDicelog(roomname, sock, limit = 20) {
+		let package = { log: '' };
+
+		let djs = require('./server/dicelog.js');
+		let dl = new djs.diceLogObj(roomname);
+
+		const requestedLogs = await dl.readEntry(limit);
+
+		// console.log('retreived logs from DB: ' + requestedLogs);
+		let diceroller = require('./server/diceroller');
+		for (let i in requestedLogs) {
+			let log = requestedLogs[i];
+			const rollmessagedata = {
+				rolls: log.diceRolls,
+				dice: log.diceUsed,
+				modifiers: log.modifiers,
+				date: log.date,
+				username: log.username,
+				usercolor: log.color
+			};
+			const formattedlog = diceroller.generateRollMessage(rollmessagedata);
+			package.log = formattedlog + package.log;
+		}
+		socket.emit('transferDiceLog', package);
+	}
 
 	socket.on('clientSignIn', function(data) {
 		console.log('user: ' + data.username + ' is attempting to log in.');
@@ -125,7 +154,7 @@ dc_socket.on('connection', function(socket) {
 			if (res.result === true) {
 				console.log('Initializing Player data');
 				// keep track of this socket
-				socket.guid = generateGUID();
+				socket.guid = uuidv4(); //generateGUID();
 				SOCKETS[socket.guid] = socket;
 				SOCKETS[socket.guid].username = data.username;
 
@@ -135,7 +164,9 @@ dc_socket.on('connection', function(socket) {
 				console.log('transfering dicelog: ');
 				console.debug(DICELOG.toString());
 
-				socket.emit('transferDiceLog', { log: DICELOG.toString() });
+				// test
+				transferDicelog(data.room, socket);
+				// socket.emit('transferDiceLog', { log: DICELOG.toString() });
 
 				// player joins desired room
 
@@ -161,119 +192,70 @@ dc_socket.on('connection', function(socket) {
 		updateClientPlayerlists(socket.roomname);
 	});
 
-	// if socket is NOT in sockets list, ignore rest of functions?
-
-	Number.prototype.pad = function(size) {
-		var s = String(this);
-		while (s.length < (size || 2)) {
-			s = '0' + s;
-		}
-		return s;
-	};
-
 	socket.on('rollDice', function(data) {
 		console.log('rolling dice');
+		let diceroller = require('./server/diceroller');
 		// data format v1
 		// {dice:[20,20,10,10...], modifiers:[+1,-1]}
 		let player = Player.list[socket.guid]; // player who called the roll
-		let msg = ''; // ex: 10 -> (d20)+10
-
-		let dicetotal = 0; // roll result value
-
-		let diceresults = ''; // used to compose msg
-		let diceused = ''; // used to compose msg
-		let critData = { didCrit: false, critType: 'MISS' };
-
-		let registeredCrit = false;
-		// roll every die seperatly and produce a string with die+die+die+
-		for (var i in data.dice) {
-			let die = data.dice[i];
-			// console.log('rolling d' + die);
-			let result = Math.floor(Math.random() * die) + 1;
-
-			// add dice roll to total dice score
-			dicetotal += result;
-
-			// generate message stub
-			// make crit red?
-			if (die === 20 && (result === 20 || result === 1)) {
-				/// take notion of CRIT
-				//TODO: move this elsewhere
-				if (result === 20) critData.critType = 'HIT';
-				else critData.critType = 'MISS';
-
-				result = '<b class="crit">' + result + '</b>';
-				critData.didCrit = true;
-			}
-
-			diceresults = [ diceresults, result ].join('+'); // add + between new elements
-			diceused = [ diceused, die ].join('+d');
-		}
-		// formatting: cut off last '+' after loop
-		diceresults = diceresults.slice(1, diceresults.length);
-		diceused = diceused.slice(1, diceused.length);
-
-		// add dice modifiers to diceresults and build modifiers string
-		let dicemodifiersLogString = '';
-		for (var i in data.modifiers) {
-			let mod = data.modifiers[i];
-			dicetotal += mod;
-			let sign = '+';
-			if (mod < 0) sign = '-';
-			dicemodifiersLogString += sign + mod;
-		}
-		if (dicemodifiersLogString === '') dicemodifiersLogString = '0';
-		msg = `<b>${dicetotal}</b> <- ${diceresults} (${diceused}) + (${dicemodifiersLogString})`;
-
-		// construct HTML code for dice log;
 		let color = player.color;
 		let username = player.username;
-		let usertag = `<username style="color:${color};">${username}: </username>`;
-		usertag = `<b>${usertag}</b>`; // hard coded bold
+		let time = new Date();
 
-		// create timestamp for roll log.
-		let d = new Date();
-		let timestamp = '' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds().pad();
-		timestamp = `<timestamp>[${timestamp}]</timestamp>`;
-		// compose HTML message
-		let html = `<li>${timestamp} - ${usertag} \t${msg}</li>`;
+		let rolls = data.dice.map((x) => Math.floor(Math.random() * x) + 1); // RTD
+		let critData = { didCrit: false, critType: 'MISS' };
 
-		// transmit HTML message to all users
-		let numdice = data.dice.length;
-		console.log(numdice);
-		let msgdata = { html: html, critData: critData, numDice: numdice };
-		// for (var i in SOCKETS) {
-		// 	let s = SOCKETS[i];
-		// 	// s.emit('addDiceRollResult', data);
-		// 	console.log('sending diceroll to ' + socket.roomname);
+		const critsList = diceroller.getHits(rolls, data.dice, [ 20 ], 20);
+		const missList = diceroller.getHits(rolls, data.dice, [ 1 ], 20);
 
-		// }
+		if (missList.length > 0) {
+			critData.didCrit = true;
+			critData.critType = 'MISS';
+		}
 
-		// finally, add dice to the TOP of the log, ( for late joiners )
-		//DICELOG.push(html);
-		DICELOG = html + DICELOG;
+		if (critsList.length > 0) {
+			critData.didCrit = true;
+			critData.critType = 'HIT';
+		}
+
+		let rollMessageData = {
+			rolls: rolls,
+			dice: data.dice,
+			modifiers: data.modifiers,
+			date: time,
+			username: username,
+			usercolor: color
+		};
+
+		// generate the HTML code that is sent to the player and added to the designated UL
+		let html = diceroller.generateRollMessage(rollMessageData);
+		let msgdata = {
+			html: html,
+			critData: critData,
+			numDice: data.dice.length
+		};
+
+		// DICELOG = html + DICELOG;
 
 		let djs = require('./server/dicelog.js');
 		let dl = new djs.diceLogObj(socket.roomname);
 
-		console.log('diceresults: ' + diceresults);
+		console.log('diceresults: ' + rolls);
 		console.log('diceused: ' + data.dice);
 		console.log('modifiers: ' + data.modifiers);
 		let dlogDataEntry = {
 			playerGUID: 'null',
 			playerDisplayName: username,
-			logTime: d,
+			logTime: time,
 			playerColor: color,
-			diceResults: diceresults,
+			diceResults: rolls,
 			diceUsed: data.dice,
 			modifiers: data.modifiers,
 			rolltype: 'r'
 		};
-		dl.writeEntry(dlogDataEntry);
+		dl.writeEntry(dlogDataEntry); // writes data to database
 
 		dc_socket.in(socket.roomname).emit('addDiceRollResult', msgdata);
-		//socket.emit('addDiceRollResult', '<div>' + msg+ '</div>');
-		console.log(msg);
 	});
 
 	socket.on('consoleCommand', function(data) {

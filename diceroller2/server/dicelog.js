@@ -19,25 +19,16 @@ mongoose.connect(process.env.DB_CONNECTIONCLOUD_DICELOGS, { useNewUrlParser: tru
 const DiceLogMongooseObj = require('../model/Dicelogs');
 const dcschema = require('../model/Dicelogs');
 
-// const DiceLogModel = mongoose.model('Roomnameplaceholder', dcschema);
-// const diceLogDoc = new DiceLogModel({
-// 	date: 123,
-// 	username: 'mrpoopybutt',
-// 	color: '#ff00ff',
-// 	diceRolls: [ 20, 20, 20 ],
-// 	diceUsed: [ 20, 20, 20 ],
-// 	modifers: [ +100 ],
-// 	rollType: 'r'
-// });
-
-// diceLogDoc.save();
+//** Debug area */
 
 class diceLog {
 	// make sure roomname is valid first
-	constructor(roomname) {
-		console.log('dicelog created with roomname: ' + roomname);
-		this.roomname = roomname;
-		this.dicelogmodel = mongoose.model(roomname, dcschema);
+	constructor(rmnlabel) {
+		// let rmn = rmnlabel;
+		console.log('dicelog created with roomname: ' + rmnlabel);
+		console.log('dicelog created with schema: ' + JSON.stringify(dcschema));
+		this.roomname = rmnlabel;
+		this.dicelogmodel = mongoose.model(rmnlabel, dcschema);
 	}
 
 	// no CB function, just checks if roomname is valid
@@ -45,13 +36,9 @@ class diceLog {
 		return true;
 	}
 
-	composeRoomPath(roomname) {
-		return LOCATIONS['dicelogs'] + roomname + '.csv';
-	}
-
 	dicelogExists(roomname, cb) {}
 
-	writeEntry(data) {
+	async writeEntry(data) {
 		// client.db('dicelog').createCollection(roomname);
 		const dicelogDoc = new this.dicelogmodel({
 			date: data.time,
@@ -64,6 +51,12 @@ class diceLog {
 		});
 
 		dicelogDoc.save();
+	}
+
+	async readEntry(l = 10) {
+		console.log('DB: Requesting room data');
+		const r = await this.dicelogmodel.find().limit(l);
+		return r;
 	}
 }
 
