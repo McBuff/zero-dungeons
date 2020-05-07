@@ -12,9 +12,7 @@ const mongoose = require('mongoose');
 mongoose.pluralize(null);
 
 require('dotenv/config');
-mongoose.connect(process.env.DB_CONNECTIONCLOUD_DICELOGS, { useNewUrlParser: true }, () =>
-	console.log('connected to DB!')
-);
+mongoose.connect(process.env.DB_CONNECTION_DICELOGS, { useNewUrlParser: true }, () => console.log('connected to DB!'));
 
 const DiceLogMongooseObj = require('../model/Dicelogs');
 const dcschema = require('../model/Dicelogs');
