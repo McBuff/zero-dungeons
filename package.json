@@ -18,8 +18,16 @@
   "homepage": "https://github.com/McBuff/zero-dungeons#readme",
   "dependencies": {
     "better-logging": "^4.3.0",
+    "csv": "^5.3.2",
+    "csv-generate": "^3.2.4",
+    "csv-parse": "^4.9.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "live-server": "^1.2.1",
-    "socket.io": "^2.3.0"
+    "mongodb": "^3.5.7",
+    "mongojs": "^3.1.0",
+    "mongoose": "^5.9.12",
+    "socket.io": "^2.3.0",
+    "uuid": "^8.0.0"
   }
 }

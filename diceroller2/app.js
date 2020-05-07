@@ -26,6 +26,9 @@ LOGINSETTINGS = { mode: 'FREEROOM', password: 'DND' };
 console.info(`Server is in mode: ${LOGINSETTINGS.mode}`);
 //LOGINSETTINGS = {mode:'ACCOUNTS', password:'DND'};
 
+let dc = require('./server/dicelog');
+// console.log(dc.getStatus());
+
 DICELOG = '';
 
 function generateGUID() {
@@ -238,19 +241,37 @@ dc_socket.on('connection', function(socket) {
 		// transmit HTML message to all users
 		let numdice = data.dice.length;
 		console.log(numdice);
-		data = { html: html, critData: critData, numDice: numdice };
+		let msgdata = { html: html, critData: critData, numDice: numdice };
 		// for (var i in SOCKETS) {
 		// 	let s = SOCKETS[i];
 		// 	// s.emit('addDiceRollResult', data);
 		// 	console.log('sending diceroll to ' + socket.roomname);
 
-		dc_socket.in(socket.roomname).emit('addDiceRollResult', data);
 		// }
 
 		// finally, add dice to the TOP of the log, ( for late joiners )
 		//DICELOG.push(html);
 		DICELOG = html + DICELOG;
 
+		let djs = require('./server/dicelog.js');
+		let dl = new djs.diceLogObj(socket.roomname);
+
+		console.log('diceresults: ' + diceresults);
+		console.log('diceused: ' + data.dice);
+		console.log('modifiers: ' + data.modifiers);
+		let dlogDataEntry = {
+			playerGUID: 'null',
+			playerDisplayName: username,
+			logTime: d,
+			playerColor: color,
+			diceResults: diceresults,
+			diceUsed: data.dice,
+			modifiers: data.modifiers,
+			rolltype: 'r'
+		};
+		dl.writeEntry(dlogDataEntry);
+
+		dc_socket.in(socket.roomname).emit('addDiceRollResult', msgdata);
 		//socket.emit('addDiceRollResult', '<div>' + msg+ '</div>');
 		console.log(msg);
 	});

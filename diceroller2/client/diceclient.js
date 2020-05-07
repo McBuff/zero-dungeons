@@ -102,6 +102,10 @@ socket.on('clientSignInResponse', function(res) {
 		divClient.classList.add('fadeInUp');
 		divClient.style += 'display:inline-block;';
 		// slight delay to focussing on the dicefield, focussing breaks animations
+
+		// fill in the room identifier at the top of the page;
+		let roomidentifier = document.getElementById('diceclient-room');
+		roomidentifier.innerHTML = document.getElementById('divSign-roomname').value;
 		setTimeout(function() {
 			divClientDiceText.focus();
 		}, 500);
