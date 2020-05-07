@@ -61,11 +61,26 @@ if (location.hostname === 'localhost' && SETTINGS.DEBUG.autologin) {
 	submitSignIn();
 }
 
+function validateRoomName(s) {
+	if (s.length > 20) return false;
+	if (/^[0-9a-zA-Z]+$/.test(s) == false) return false;
+	return true;
+}
+
 function submitSignIn() {
 	// validate forms , then log in
+	let roomname = document.getElementById('divSign-roomname').value;
+
+	if (validateRoomName(roomname) === false) {
+		document.getElementById('divSign-roomname').classList.add('is-invalid');
+		return;
+	} else {
+		divClientDiceText.classList.remove('is-invalid');
+	}
+
 	if (divSignUsername.value.length > SETTINGS.DEBUG.autologin) {
 		console.debug('Submitting login data');
-		let roomname = document.getElementById('divSign-roomname').value;
+
 		socket.emit('clientSignIn', {
 			username: divSignUsername.value,
 			password: divSignPassword.value,

@@ -31,6 +31,8 @@ class diceLog {
 
 	// no CB function, just checks if roomname is valid
 	isRoomNameValid(roomname) {
+		if (roomname.length > 20) return false;
+		if (/^[0-9a-zA-Z]+$/.test(roomname) == false) return false;
 		return true;
 	}
 
