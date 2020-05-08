@@ -25,7 +25,7 @@ function getHits(rolls, dice, targetrolls = [ 20 ], dicetype = 20) {
  * Formats a CRIT
  */
 function formatCrit(v) {
-	return '<span class="crit hit">' + v.toString() + '</span>';
+	return '<span class="rainbow fast crit hit">' + v.toString() + '</span>';
 }
 function formatMiss(v) {
 	return '<span class="crit miss">' + v.toString() + '</span>';
@@ -50,7 +50,7 @@ function formatRolls(rolls, dice) {
 		} else formattedRolls.push(rolls[i]);
 	}
 
-	return formattedRolls;
+	return formattedRolls.map((x) => '+' + x);
 }
 
 /** 

@@ -393,22 +393,58 @@ divClientDiceText.onkeyup = function() {
 	}
 };
 
+function parseConsoleCommand(commandstring) {
+	let result = {
+		cmd: '',
+		args: []
+	};
+
+	words = commandstring.split(' ');
+	result.cmd = words.shift();
+	result.args = words;
+
+	return result;
+}
 // Handles parsing console commands and sends them to the server / or executes them locally
 var fn_handleconsolecommand = function(command) {
-	if (command === 'cls') {
-		//var cmd = 'cls';
-		socket.emit('consoleCommand', { cmd: 'cls' });
+	const { cmd, args } = parseConsoleCommand(command);
 
-		divClientDiceText.value = '';
-		return;
-	}
+	// const knownCommands = {
+	// 	clearlog: (x) => x === 'cls',
+	// 	setplayercolor: (x) => x === 'col',
+	// 	setplayerportrait: (x) => x === 'portrait'
+	// };
+	console.log('checking for command ' + cmd);
+	const knownCommands = [ 'cls', 'col', 'portrait' ];
 
-	if (command.includes('col')) {
-		let colorval = command.slice(4, command.length);
-		socket.emit('consoleCommand', { cmd: 'col', args: colorval });
-		divClientDiceText.value = '';
-		return;
-	}
+	if (knownCommands.indexOf(cmd) >= 0) {
+		console.log(`Console command ${cmd} detected with args: ${args}`);
+		socket.emit('consoleCommand', { cmd: cmd, args: args });
+	} else console.log('not found');
+
+	// check if the command string finds a console command:
+
+	// if (knownCommands.clearlog(cmd)) {
+	// 	// if (command === 'cls') {
+	// 	//var cmd = 'cls';
+	// 	socket.emit('consoleCommand', { cmd: cmd });
+
+	// 	divClientDiceText.value = '';
+	// 	return;
+	// }
+
+	// if (knownCommands.setplayercolor(cmd)) {
+	// 	let colorval = command.slice(4, command.length);
+	// 	socket.emit('consoleCommand', { cmd: 'col', args: args });
+	// 	divClientDiceText.value = '';
+	// 	return;
+	// }
+
+	// if (knownCommands.setplayerportrait(cmd)) {
+	// 	socket.emit('consoleCommand', { cmd: cmd, args: args });
+	// 	divClientDiceText.value = '';
+	// 	return;
+	// }
 
 	divClientDiceText.value = '';
 };
@@ -554,7 +590,20 @@ socket.on('setPlayerList', function(data) {
 			let childNodes = playerHtmlElement.childNodes;
 			console.log('found childnodes ' + JSON.stringify(childNodes));
 			let playerNameNode = childNodes[1].childNodes[0]; // TODO: find better way to get player color
-			playerNameNode.style.color = data[i].color;
+
+			console.log('so you are a big boi? ' + data[i].color);
+			// playerNameNode.style.color = data[i].color;
+			if (data[i].color === 'unicornfarts') {
+				playerNameNode.classList.add('rainbow');
+				playerNameNode.classList.add('fast');
+				playerNameNode.style.color = '';
+			} else {
+				playerNameNode.classList.remove('rainbow');
+				playerNameNode.classList.remove('fast');
+				playerNameNode.style.color = data[i].color;
+			}
+			// playerNameNode.style.color = data[i].color;
+
 			console.log(playerNameNode.classList);
 			// update color / portrait
 

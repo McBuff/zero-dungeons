@@ -22,7 +22,21 @@ USERS = {
 	Dimur: 'dnd'
 };
 
-USERCOLORS = [ 'Brown', 'CornflowerBlue', 'Chocolate', 'DarkGreen', 'Indigo', '#00806c' ];
+// USERCOLORS = [ 'Brown', 'CornflowerBlue', 'Chocolate', 'DarkGreen', 'Indigo', '#00806c' ];
+USERCOLORS = [
+	'#ff1744',
+	'#ff4081',
+	'#6a1b9a',
+	'#283593',
+	'#1e88e5',
+	'#00796b',
+	'#2e7d32',
+	'#689f38',
+	'#aeea00',
+	'#ffc400',
+	'#ff5722'
+];
+USERCOLORS.sort();
 
 DEBUGPWD = 'dnd';
 LOGINSETTINGS = { mode: 'FREEROOM', password: 'DND' };
@@ -259,6 +273,7 @@ dc_socket.on('connection', function(socket) {
 	});
 
 	socket.on('consoleCommand', function(data) {
+		const { cmd, args } = data;
 		console.log('========================');
 		console.log('Received Console Command');
 		console.log('========================');
@@ -275,10 +290,15 @@ dc_socket.on('connection', function(socket) {
 			return;
 		}
 
-		if (data.cmd === 'col') {
+		if (cmd === 'col') {
 			console.log('changing player col ' + data.args);
 			let p = Player.list[socket.guid];
-			p.color = data.args;
+
+			if (args[0] === 'unicornfarts') {
+				p.color = data.args[0];
+			} else {
+				p.color = data.args[0];
+			}
 			updateClientPlayerlists(socket.roomname);
 		}
 	});
