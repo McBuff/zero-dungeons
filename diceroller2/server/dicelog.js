@@ -14,7 +14,6 @@ mongoose.pluralize(null);
 require('dotenv/config');
 mongoose.connect(process.env.DB_CONNECTION_DICELOGS, { useNewUrlParser: true }, () => console.log('connected to DB!'));
 
-const DiceLogMongooseObj = require('../model/Dicelogs');
 const dcschema = require('../model/Dicelogs');
 
 //** Debug area */
@@ -23,8 +22,8 @@ class diceLog {
 	// make sure roomname is valid first
 	constructor(rmnlabel) {
 		// let rmn = rmnlabel;
-		console.log('dicelog created with roomname: ' + rmnlabel);
-		console.log('dicelog created with schema: ' + JSON.stringify(dcschema));
+		console.log('dicelogObject created with roomname: ' + rmnlabel);
+		console.debug('dicelog created with schema: ' + JSON.stringify(dcschema));
 		this.roomname = rmnlabel;
 		this.dicelogmodel = mongoose.model(rmnlabel, dcschema);
 	}
