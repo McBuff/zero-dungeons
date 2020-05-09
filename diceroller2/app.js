@@ -59,54 +59,48 @@ function generateGUID() {
 
 const Player = require('./server/players.js');
 
-// const Player = function(socket) {
-// 	let self = {
-// 		color: pullColor(),
-// 		socket: socket,
-// 		username: socket.username,
-// 		userguid: uuidv4()
-// 	};
+/**Sends current status of playerlist for roomname to all sockets in same room.
+ */
+const updateClientPlayerlists = async function(roomname) {
+	// package playerdata, push into list, emit to clients
+	playerDataList = [];
 
-// 	//add self to players list
-// 	Player.list[socket.guid] = self;
-// 	console.log(`Created player with username ${self.username} and GUID: ${self.userguid} for room ${socket.roomname}`);
-
-// 	return self;
-// };
-// Player.onConnect = function(socket) {
-// 	const player = Player(socket);
-// };
-// Player.onDisconnect = function(socket) {
-// 	delete Player.list[socket.guid];
-// };
-
-let updateClientPlayerlists = function(roomname) {
-	playernames = [];
-
-	for (var i in Player.list) {
-		var player = Player.list[i];
+	for (let i in Player.list) {
+		const player = Player.list[i];
 		if (player.socket.roomname === roomname)
-			playernames.push({ username: player.username, color: player.color, guid: player.socket.guid });
+			playerDataList.push({
+				username: player.username,
+				color: player.color,
+				guid: player.socket.guid
+			});
 	}
 	console.log('sending player list to players in room: ' + roomname);
-	// for (var i in SOCKETS) {
-	// 	var socket = SOCKETS[i];
-	// 	socket.in(roomname).emit('setPlayerList', playernames);
-	// }
-	dc_socket.in(roomname).emit('setPlayerList', playernames);
+
+	dc_socket.in(roomname).emit('setPlayerList', playerDataList);
 };
 
-Player.list = {};
+const authenticateUser = function(data, cb) {
+	const { username, password, room } = data;
 
-var authenticateUser = function(data, cb) {
 	if (LOGINSETTINGS.mode === 'FREEROOM') {
-		HEROKU_CONFIG_PW = process.env.DICEROLL_ROOMKEY || LOGINSETTINGS.password;
-		// console.log('Server is in ROOM mode');
-		if (data.password === HEROKU_CONFIG_PW) {
-			console.log(`User: '${data.username}' admitted`);
-			cb({ result: true });
-		} else cb({ result: false });
+		/* FREEROOMMODE:
+		In this mode, a room is created for users, open to the public, they can set a password however.
+		When setting a password, the room is locked with said password for a predetermined period of time.
+		When the time expires, the room is unlocked.
+		Why? To clean up sinle-use rooms
+		TODO: implement room cleanup mechanic, for now there will be no passwords
+		*/
+		//#region Do not delete commented code:
+		// HEROKU_CONFIG_PW = process.env.DICEROLL_ROOMKEY || LOGINSETTINGS.password;
+		// if (data.password === HEROKU_CONFIG_PW) {
+		// 	console.log(`User: '${data.username}' admitted`);
+		console.log(`Authenticated user: ${username} to room: ${room}`);
+
+		cb({ result: true });
+		// } else cb({ result: false });
+		//#endregion
 	} else if (LOGINSETTINGS.mode == 'ACCOUNTS') {
+		console.warn('ACCOUNTS mode is depricated');
 		if (USERS[data.username] === data.password) {
 			console.debug('user authenticated succesfully');
 			cb({ result: true });
@@ -116,18 +110,12 @@ var authenticateUser = function(data, cb) {
 
 // all 'diceroller app' messages should go through namespace '/ns-diceroller'
 // sc_socket holds this namespace' socket.
-let dc_namespace = '/ns-diceroller';
+const dc_namespace = '/ns-diceroller';
 const dc_socket = io.of(dc_namespace);
-
-// dc_socket.on('connection', function(socket) {
-// 	console.log('got a sign in through namespace');
-// });
 
 //Main logic
 // io.sockets.on('connection', function(socket) {
 dc_socket.on('connection', function(socket) {
-	//console.log('socket connection');
-
 	socket.roomname = '';
 	// handle user login
 	async function transferDicelog(roomname, sock, limit = 20) {
@@ -138,7 +126,7 @@ dc_socket.on('connection', function(socket) {
 
 		const requestedLogs = await dl.readEntry(limit);
 
-		// console.log('retreived logs from DB: ' + requestedLogs);
+		// Read room's log , format to dicelog data
 		let diceroller = require('./server/diceroller');
 		for (let i in requestedLogs) {
 			let log = requestedLogs[i];
@@ -153,16 +141,22 @@ dc_socket.on('connection', function(socket) {
 			const formattedlog = diceroller.generateRollMessage(rollmessagedata);
 			package.log = formattedlog + package.log;
 		}
-		socket.emit('transferDiceLog', package);
+		sock.emit('transferDiceLog', package);
 	}
 
 	socket.on('clientSignIn', function(data) {
-		console.log('user: ' + data.username + ' is attempting to log in.');
+		// console.log('user: ' + data.username + ' is attempting to log in.');
 		if (data.room) console.log(`user: ${data.username} requests to join room: ${data.room}`);
+		else {
+			console.warn(`${data.username} is trying join without specifying room`);
+			console.trace();
+		}
 
 		authenticateUser(data, function(res) {
 			if (res.result === true) {
-				console.log('Initializing Player data');
+				// data format
+				// {username, password, room}
+
 				// keep track of this socket
 				socket.guid = uuidv4(); //generateGUID();
 				SOCKETS[socket.guid] = socket;
@@ -172,22 +166,21 @@ dc_socket.on('connection', function(socket) {
 				Player.onConnect(socket);
 
 				// Send current dicelog to player
-				console.log('transfering dicelog: ');
+				console.debug('transfering dicelog');
 				console.debug(DICELOG.toString());
 
-				// test
+				// async send dicelog to new player
 				transferDicelog(data.room, socket);
-				// socket.emit('transferDiceLog', { log: DICELOG.toString() });
 
-				// player joins desired room
-
+				// connect player to requested room
 				socket.join(socket.roomname);
 
-				console.log('socket roomname: ' + socket.roomname);
+				console.debug('socket roomname: ' + socket.roomname);
 
 				// Send all players an updated player list
 				updateClientPlayerlists(socket.roomname);
 
+				// tell client they're in
 				socket.emit('clientSignInResponse', { succes: true });
 			} else {
 				console.warn('User authentication Failed');
@@ -203,7 +196,7 @@ dc_socket.on('connection', function(socket) {
 	});
 
 	socket.on('rollDice', function(data) {
-		console.log('rolling dice');
+		console.debug('rolling dice');
 		let diceroller = require('./server/diceroller');
 		// data format v1
 		// {dice:[20,20,10,10...], modifiers:[+1,-1]}
@@ -250,11 +243,16 @@ dc_socket.on('connection', function(socket) {
 		let djs = require('./server/dicelog.js');
 		let dl = new djs.diceLogObj(socket.roomname);
 
-		console.log('diceresults: ' + rolls);
-		console.log('diceused: ' + data.dice);
-		console.log('modifiers: ' + data.modifiers);
+		// print roll debug info
+		console.debug(
+			`${socket.roomname}:` +
+				`${player.toString()} ` +
+				`rolled ${rolls} ` +
+				`using ${data.dice} + ${data.modifiers}`
+		);
+
 		let dlogDataEntry = {
-			playerGUID: 'null',
+			playerGUID: player.userguid,
 			playerDisplayName: username,
 			logTime: time,
 			playerColor: color,

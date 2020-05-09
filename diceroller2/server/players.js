@@ -14,6 +14,10 @@ const Player = function(socket) {
 	Player.list[socket.guid] = self;
 	console.log(`Created player with username ${self.username} and GUID: ${self.userguid} for room ${socket.roomname}`);
 
+	self.toString = function() {
+		return `${self.username} [${self.userguid}]`;
+	};
+
 	return self;
 };
 Player.onConnect = function(socket) {
@@ -23,6 +27,10 @@ Player.onDisconnect = function(socket) {
 	delete Player.list[socket.guid];
 };
 
+// Player.toString = function() {
+// 	console.log('tostring called');
+// 	return `${self.username} [${self.userguid}]`;
+// };
 /*
 Helper methods
  */
@@ -32,5 +40,7 @@ function pullColor() {
 	USERCOLORS.push(color);
 	return color;
 }
+
+Player.list = {};
 
 module.exports = Player;

@@ -22,7 +22,7 @@ class diceLog {
 	// make sure roomname is valid first
 	constructor(rmnlabel) {
 		// let rmn = rmnlabel;
-		console.log('dicelogObject created with roomname: ' + rmnlabel);
+		console.debug('dicelogObject created with roomname: ' + rmnlabel);
 		console.debug('dicelog created with schema: ' + JSON.stringify(dcschema));
 		this.roomname = rmnlabel;
 		this.dicelogmodel = mongoose.model(rmnlabel, dcschema);
