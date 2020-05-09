@@ -8,6 +8,7 @@ console.log('DiceRollerApp Loading...');
 var io = require('socket.io')(serv, {});
 
 const uuidv4 = require('uuid').v4;
+const consolecommands = new require('./server/consolecommands');
 // import { v4 as uuidv4 } from 'uuid';
 
 // All http requests are declared in dr_expressrequests
@@ -36,7 +37,7 @@ USERCOLORS = [
 	'#ffc400',
 	'#ff5722'
 ];
-USERCOLORS.sort();
+USERCOLORS.sort(); // shuffles colors
 
 DEBUGPWD = 'dnd';
 LOGINSETTINGS = { mode: 'FREEROOM', password: 'DND' };
@@ -49,8 +50,8 @@ let dc = require('./server/dicelog');
 DICELOG = '';
 
 function generateGUID() {
-	var sGuid = '';
-	for (var i = 0; i < 32; i++) {
+	let sGuid = '';
+	for (let i = 0; i < 32; i++) {
 		sGuid += Math.floor(Math.random() * 0xf).toString(0xf);
 	}
 	return sGuid;
@@ -63,8 +64,8 @@ function pullColor() {
 	return color;
 }
 
-var Player = function(socket) {
-	var self = {
+const Player = function(socket) {
+	let self = {
 		color: pullColor(),
 		socket: socket,
 		username: socket.username,
@@ -73,18 +74,18 @@ var Player = function(socket) {
 
 	//add self to players list
 	Player.list[socket.guid] = self;
-	console.log('Created player with username ' + self.username + ' and GUID ' + self.userguid);
+	console.log(`Created player with username ${self.username} and GUID: ${self.userguid} for room ${socket.roomname}`);
 
 	return self;
 };
 Player.onConnect = function(socket) {
-	var player = Player(socket);
+	const player = Player(socket);
 };
 Player.onDisconnect = function(socket) {
 	delete Player.list[socket.guid];
 };
 
-var updateClientPlayerlists = function(roomname) {
+let updateClientPlayerlists = function(roomname) {
 	playernames = [];
 
 	for (var i in Player.list) {
@@ -171,6 +172,7 @@ dc_socket.on('connection', function(socket) {
 				socket.guid = uuidv4(); //generateGUID();
 				SOCKETS[socket.guid] = socket;
 				SOCKETS[socket.guid].username = data.username;
+				socket.roomname = data.room;
 
 				Player.onConnect(socket);
 
@@ -184,7 +186,6 @@ dc_socket.on('connection', function(socket) {
 
 				// player joins desired room
 
-				socket.roomname = data.room;
 				socket.join(socket.roomname);
 
 				console.log('socket roomname: ' + socket.roomname);
@@ -274,10 +275,22 @@ dc_socket.on('connection', function(socket) {
 
 	socket.on('consoleCommand', function(data) {
 		const { cmd, args } = data;
+		const commands = {
+			cls: 'cls',
+			col: 'col',
+			displayname: 'displayname',
+			portrait: 'portrait'
+		};
+		const knowncommands = Object.keys(commands);
+
+		// exit function early if no command is detected
+		if (knowncommands.includes(cmd) == false) return;
+
 		console.log('========================');
 		console.log('Received Console Command');
 		console.log('========================');
-		if (data.cmd === 'cls') {
+
+		if (cmd === commands.cls) {
 			console.log('clearing dicelog');
 			DICELOG = '';
 
@@ -290,15 +303,19 @@ dc_socket.on('connection', function(socket) {
 			return;
 		}
 
-		if (cmd === 'col') {
-			console.log('changing player col ' + data.args);
-			let p = Player.list[socket.guid];
-
-			if (args[0] === 'unicornfarts') {
-				p.color = data.args[0];
+		if (cmd === commands.col) {
+			const parsedArgs = consolecommands.parseplayercolargs(args);
+			let p = null;
+			if (parsedArgs.target === 'self') {
+				p = Player.list[socket.guid];
 			} else {
-				p.color = data.args[0];
+				console.error(
+					'player is trying to change player color using target playermethod,\
+				this code should not be reachable at this point'
+				);
 			}
+			console.log(p.userguid);
+			p.color = parsedArgs.color;
 			updateClientPlayerlists(socket.roomname);
 		}
 	});

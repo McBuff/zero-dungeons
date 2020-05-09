@@ -3,7 +3,7 @@ var socket = io('/ns-diceroller');
 // const dc_socket = io('/ns-diceroller');
 
 SETTINGS = {};
-SETTINGS.DEBUG = { debugmode: true, autologin: false };
+SETTINGS.DEBUG = { debugmode: true, autologin: true };
 SETTINGS.PLAYERLIST = { portraitsize: '60px' };
 //PLAYERLISTSETTINGS = {portraitsize:'60px'}
 
@@ -58,6 +58,7 @@ if (location.hostname === 'localhost' && SETTINGS.DEBUG.autologin) {
 	console.log('DICECLIENT: running on localhost'), console.log(location);
 	divSignUsername.value = 'DEBUG';
 	divSignPassword.value = 'DND';
+	document.getElementById('divSign-roomname').value = 'DEBUGROOM';
 	submitSignIn();
 }
 
@@ -591,9 +592,8 @@ socket.on('setPlayerList', function(data) {
 			console.log('found childnodes ' + JSON.stringify(childNodes));
 			let playerNameNode = childNodes[1].childNodes[0]; // TODO: find better way to get player color
 
-			console.log('so you are a big boi? ' + data[i].color);
-			// playerNameNode.style.color = data[i].color;
 			if (data[i].color === 'unicornfarts') {
+				console.log('so you are a big boi? ' + data[i].color);
 				playerNameNode.classList.add('rainbow');
 				playerNameNode.classList.add('fast');
 				playerNameNode.style.color = '';
@@ -602,13 +602,11 @@ socket.on('setPlayerList', function(data) {
 				playerNameNode.classList.remove('fast');
 				playerNameNode.style.color = data[i].color;
 			}
-			// playerNameNode.style.color = data[i].color;
 
-			console.log(playerNameNode.classList);
+			// console.log(playerNameNode.classList);
 			// update color / portrait
 
 			Playerslist[data[i].guid] = data[i];
-			//animationHtml = '';
 			continue;
 		}
 		fancydelayAnimation += 65;
